@@ -4,7 +4,8 @@ from .database import Database
 class ExDatabase(Database):
     def __init__(self, CONNECTION_STRING, dbname, colname='vie'):
         super().__init__(CONNECTION_STRING, dbname)
-        fields = self.db[colname].find_one({}).keys()
+        fields = self.db[colname].find_one(
+            {}).keys() if colname in self.db.list_collection_names() else []
         self.extensionFields = [
             field for field in fields if field not in self.defaultFields]
 
