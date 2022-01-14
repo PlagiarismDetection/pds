@@ -4,6 +4,7 @@ from pymongo import MongoClient
 
 
 class Database(ABC):
+    # module database manages basic manipulations on the local database
     def __init__(self, CONNECTION_STRING, dbname):
         client = MongoClient(CONNECTION_STRING)
         self.defaultFields = ['_id', 'Filename', 'Title',
@@ -11,23 +12,31 @@ class Database(ABC):
         self.db = client[dbname]
 
     def insertByFile(self, colname, folder):
+        # -> None: insert a document in file-type
         self.__pdf_push(folder, colname)
         self.__docx_push(folder, colname)
 
     def insertByData(self, colname, filename, title, author, creation_date, content):
+        # -> Dictionary: insert a document in text-type
         collection_name = self.db[colname]
         data = self.createDocuments(
             filename, title, author, creation_date, content)
         return collection_name.insert_one(data)
 
     def getCollection(self, colname):
+        # -> list(dictionary): return a list of documents in a collection
         collection = self.db[colname]
         return collection.find()
 
     def updateDocuments(self, colname, filter={}, updateValue=None):
-        return self.db[colname].update_many(filter, {'$set': updateValue})
+        # -> list(dictionary): return a list of updated documents in a collection
+        # Note: only update on the basic existed fields.
+        if len([field for field in updateValue.keys() if field in self.defaultFields]) == len(updateValue.keys()):
+            return self.db[colname].update_many(filter, {'$set': updateValue})
+        return False
 
     def deleteDocuments(self, colname, filter={}):
+        # -> list(dictionary): return a list of deleted documents in a collection
         return self.db[colname].delete_many(filter)
 
     @staticmethod
