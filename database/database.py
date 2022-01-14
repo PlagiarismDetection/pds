@@ -1,61 +1,58 @@
 from abc import ABC
 from pds.reader import getPDFList, pdfClean, getDOCXList, docxClean
-from pds.pre_processing.eng_preprocessing import EngPreprocessing
-from pds.pre_processing.vnm_preprocessing import VnmPreprocessing
 from pymongo import MongoClient
 
 
 class Database(ABC):
     def __init__(self, CONNECTION_STRING, dbname):
         client = MongoClient(CONNECTION_STRING)
+        self.defaultFields = ['_id', 'Filename', 'Title',
+                              'Author', 'Creation-date', 'Content']
         self.db = client[dbname]
 
-    def pushByFile(self, folder, collection):
-        self.__pdf_push(folder, collection)
-        self.__docx_push(folder, collection)
+    def insertByFile(self, colname, folder):
+        self.__pdf_push(folder, colname)
+        self.__docx_push(folder, colname)
 
-    def pushByData(self, filename, title, author, creation_date, content, collection):
-        collection_name = self.db[collection]
-        data = self.__createDocuments(
-            filename, title, author, creation_date, content, collection)
-        collection_name.insert_one(data)
+    def insertByData(self, colname, filename, title, author, creation_date, content):
+        collection_name = self.db[colname]
+        data = self.createDocuments(
+            filename, title, author, creation_date, content)
+        return collection_name.insert_one(data)
+
+    def getCollection(self, colname):
+        collection = self.db[colname]
+        return collection.find()
+
+    def updateDocuments(self, colname, filter={}, updateValue=None):
+        return self.db[colname].update_many(filter, {'$set': updateValue})
+
+    def deleteDocuments(self, colname, filter={}):
+        return self.db[colname].delete_many(filter)
 
     @staticmethod
-    def __createDocuments(filename, title, author, creation_date, content, collection):
-        content_w = EngPreprocessing.preprocess2word(
-            content) if collection == 'eng' else VnmPreprocessing.preprocess2word(content)
-        content_s = EngPreprocessing.preprocess2sent(
-            content) if collection == 'eng' else VnmPreprocessing.preprocess2sent(content)
+    def createDocuments(filename, title, author, creation_date, content):
         item = {'Filename': filename,
                 'Title': title,
                 'Author': author,
                 'Creation-date': creation_date,
-                'Content': content,
-                'Content-word': content_w,
-                'Content-sent': content_s}
+                'Content': content}
         return item
 
-    @classmethod
-    def __pdf_push(cls, folder, collection):
+    def __pdf_push(self, folder, colname):
         pdf_data = getPDFList(folder)
         pdf_docs = list(
-            map(lambda data: cls.__createDocuments(data.filename, data.title, data.author, data.creation_date, data.content, collection), pdf_data))
+            map(lambda data: self.createDocuments(data.filename, data.title, data.author, data.creation_date, data.content), pdf_data))
         if(pdf_docs != []):
-            collection_name = cls.db[collection]
+            collection_name = self.db[colname]
             collection_name.insert_many(pdf_docs)
         pdfClean(pdf_data)
 
-    @classmethod
-    def __docx_push(cls, dbname, folder, collection):
+    def __docx_push(self, folder, colname):
         docx_data = getDOCXList(folder)
         docx_docs = list(
-            map(lambda data: cls.__createDocuments(data.filename, data.title, data.author, data.creation_date, data.content, collection), docx_data))
+            map(lambda data: self.createDocuments(data.filename, data.title, data.author, data.creation_date, data.content), docx_data))
         if(docx_docs != []):
-            collection_name = dbname[collection]
+            collection_name = self.db[colname]
             collection_name.insert_many(docx_docs)
         docxClean(docx_data)
-
-    @staticmethod
-    def getCollection(dbname, colname):
-        collection = dbname[colname]
-        return collection.find()

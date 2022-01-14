@@ -3,7 +3,7 @@ import glob
 from abc import ABC
 
 
-def getDOCXList(cls, folder):
+def getDOCXList(folder):
     fileList = glob.glob('{}/*.docx'.format(folder))
     dataList = list(map(lambda filename: docx.Document(filename), fileList))
     docxList = []
