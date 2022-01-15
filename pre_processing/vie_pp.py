@@ -23,7 +23,7 @@ class ViePreprocessor():
         text = input
 
         if replace_num:
-            text = cls.replace_number(input, replace_num)
+            text = cls.replace_number(input)
 
         text = cls.standardize_unicode(text)
         text = cls.standardize_marks(text)
@@ -40,7 +40,7 @@ class ViePreprocessor():
         text = input
 
         if replace_num:
-            text = cls.replace_number(input, replace_num)
+            text = cls.replace_number(input)
 
         text = cls.standardize_unicode(text)
         text = cls.standardize_marks(text)
