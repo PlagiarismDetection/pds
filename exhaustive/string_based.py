@@ -1,5 +1,5 @@
-from pds.pre_processing.vnm_preprocessing import VnmPreprocessing
-from pds.pre_processing.eng_preprocessing import EngPreprocessing
+from pds.pre_processing import ViePreprocessor
+from pds.pre_processing import EngPreprocessor
 
 from pds.candidate_retrieval.similarity_metric import SimilarityMetric
 
@@ -20,8 +20,8 @@ class StringBasedTechnique(ABC):
         rows = len(input_sent_list)
         cols = len(candidate_sent_list)
         input_grams_list = list(map(
-            lambda input_sent: VnmPreprocessing.tokenization(input_sent), input_sent_list))
-        candidate_grams_list = list(map(lambda candidate_sent: VnmPreprocessing.tokenization(
+            lambda input_sent: ViePreprocessor.tokenize(input_sent), input_sent_list))
+        candidate_grams_list = list(map(lambda candidate_sent: ViePreprocessor.tokenize(
             candidate_sent), candidate_sent_list))
         evidence_SM = np.array([])
 
@@ -36,8 +36,8 @@ class StringBasedTechnique(ABC):
         rows = len(input_sent_list)
         cols = len(candidate_sent_list)
         input_grams_list = list(map(
-            lambda input_sent: EngPreprocessing.tokenization(input_sent), input_sent_list))
-        candidate_grams_list = list(map(lambda candidate_sent: EngPreprocessing.tokenization(
+            lambda input_sent: EngPreprocessor.tokenize(input_sent), input_sent_list))
+        candidate_grams_list = list(map(lambda candidate_sent: EngPreprocessor.tokenize(
             candidate_sent), candidate_sent_list))
         evidence_SM = np.array([])
 
@@ -49,14 +49,16 @@ class StringBasedTechnique(ABC):
 
     @classmethod
     def __eng_preprocessing(cls, para):
-        sent_list = EngPreprocessing.sentence_split(para)
+        sent_list = EngPreprocessor.pp2sent(
+            para, replace_num=False, lowercase=False)
         sent_list = list(
             map(lambda sent: cls.__remove_dumb_sent(sent), sent_list))
         return list(filter(lambda sent: len(sent) != 0, sent_list))
 
     @classmethod
     def __vie_preprocessing(cls, para):
-        sent_list = VnmPreprocessing.sentence_split(para)
+        sent_list = ViePreprocessor.pp2sent(
+            para, replace_num=False, lowercase=False)
         sent_list = list(
             map(lambda sent: cls.__remove_dumb_sent(sent), sent_list))
         return list(filter(lambda sent: len(sent) != 0, sent_list))

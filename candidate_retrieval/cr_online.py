@@ -7,34 +7,20 @@ from nltk import ngrams, word_tokenize as eng_tokenizer
 from underthesea import word_tokenize as vie_tokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 
-from pds.pre_processing.vnm_preprocessing import VnmPreprocessing
-from pds.pre_processing.eng_preprocessing import EngPreprocessing
+from pds.pre_processing import ViePreprocessor
+from pds.pre_processing import EngPreprocessor
+from pds.pre_processing.utils import split_to_paras
 from pds.candidate_retrieval.similarity_metric import SimilarityMetric
+
 
 class CROnline():
     def __init__(self):
-        pass
-
-    @staticmethod
-    def split_to_paras(data):
-        punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
-        temp1 = re.sub(r'\n\n+', '@@@', data)
-        temp2 = re.sub(r'\n', ' ', temp1)
-        data_text = re.sub('@@@', '\n', temp2)
-        data_list = data_text.split('\n')
-
-        para_list = []
-        for par in data_list:
-            if len(par) > 200:
-                if not par[0].isdigit() and not par[0] in punctuations:
-                    if not re.match(r"[.−_]{3,}", par):
-                        para_list.append(par)
-        return para_list
+        pass    
 
     @classmethod
     def chunking(cls, data, lang='en'):
         # Split data text to get important paragraph
-        para_list = cls.split_to_paras(data)
+        para_list = split_to_paras(data)
 
         # Chunking each paragraph to chunk of 1 - 3 sentences.
         # Use Preprocessing to sent to split each paragraph to list of sent.
@@ -46,9 +32,9 @@ class CROnline():
             # Use Preprocessing to sent to split each paragraph to list of sent.
             sent_list = ''
             if lang == 'en':
-                sent_list = EngPreprocessing.preprocess2sent(par)
+                sent_list = EngPreprocessor.pp2sent(par)
             else:
-                sent_list = VnmPreprocessing.preprocess2sent(par)
+                sent_list = ViePreprocessor.pp2sent(par)
 
             # Chunking each paragraph to many chunks of 2 - 4 sentences.
             chunks = [sent_list[i: i + 3] for i in range(0, len(sent_list), 3)]
@@ -75,10 +61,10 @@ class CROnline():
         # Filtering chunk >= 10 word, word >= 4 and not contain special words.
         pp_chunk_list = ''
         if lang == 'en':
-            pp_chunk_list = [EngPreprocessing.preprocess2word(
+            pp_chunk_list = [EngPreprocessor.pp2word(
                 chunk) for chunk in chunk_list]
         else:
-            pp_chunk_list = [VnmPreprocessing.preprocess2word(
+            pp_chunk_list = [ViePreprocessor.pp2word(
                 chunk) for chunk in chunk_list]
         pp_chunk_list = [list(filter(lambda w: (len(w) >= 4) & (w not in ['date', 'time', 'http', 'https']) & (
             not w.startswith(r"//")), chunk)) for chunk in pp_chunk_list]
@@ -134,8 +120,7 @@ class CROnline():
         s = requests.Session()
         url = 'https://www.bing.com/search?q=' + query + \
             "+filetype%3A&go=Search&qs=ds&form=QBRE"
-        
-        print(url)
+
         page = s.get(url, headers=get_header)
         soup = BeautifulSoup(page.text, "html.parser")
 
@@ -143,17 +128,18 @@ class CROnline():
         output = []
         # this line may change in future based on google's web page structure
         for searchWrapper in soup.find_all('li', attrs={'class': 'b_algo'}):
-            url = searchWrapper.find('a')["href"]
+            urls = searchWrapper.find_all('a')
+            url = [u.get('href') for u in urls if u.get('href')][0]
+
             title = searchWrapper.find('a').text.strip()
 
             snippet = searchWrapper.find('p')
             snippet = "" if snippet == None else snippet.text
 
             res = {'title': title, 'url': url, 'snippet': snippet}
-            # print(res)
             output.append(res)
 
-            print(res)
+            print(url)
 
         return output
 
@@ -173,8 +159,8 @@ class CROnline():
 
     @staticmethod
     def check_duplicate_url(search_results, lang='vi'):
-        skipWebLst = ['tailieumienphi.vn', 'baovanhoa.vn', 'nslide.com', 'www.coursehero.com', 
-                        'towardsdatascience.com', 'medium.com']
+        skipWebLst = ['tailieumienphi.vn', 'baovanhoa.vn', 'nslide.com', 'www.coursehero.com',
+                      'towardsdatascience.com', 'medium.com']
         skipTailLst = ['model', 'aspx', 'xls', 'pptx', 'xml', 'jar', 'zip', '']
 
         check_duplicated = []
@@ -193,7 +179,8 @@ class CROnline():
             pp_title = title.lower()
             pp_title = re.sub(
                 r"""[!"#$%&'()*+,\-./:;<=>?@^_`{|}~…“”–—]""", " ", pp_title)
-            pp_title = vie_tokenizer(pp_title) if lang == 'vi' else eng_tokenizer(pp_title)
+            pp_title = vie_tokenizer(
+                pp_title) if lang == 'vi' else eng_tokenizer(pp_title)
 
             # Compaare title with alls in title_list, using Jaccard_2
             sm_title_list = [SimilarityMetric.n_gram_matching(
@@ -209,17 +196,16 @@ class CROnline():
                 title_list.append(pp_title)
         return check_duplicated
 
-
     @staticmethod
     def snippet_based_checking(search_results, suspicious_doc_string, lang='vi', threshold=1):
         # Check overlap on 5-grams on suspicious document and candidate document
         n = 3
 
         if lang == 'vi':
-            sus_preprocessed = VnmPreprocessing.preprocess2word(
+            sus_preprocessed = ViePreprocessor.pp2word(
                 suspicious_doc_string)
         else:
-            sus_preprocessed = EngPreprocessing.preprocess2word(
+            sus_preprocessed = EngPreprocessor.pp2word(
                 suspicious_doc_string)
 
         sus_grams = ngrams(sus_preprocessed, n)
@@ -230,10 +216,10 @@ class CROnline():
 
         for candidate in search_results:
             if lang == 'vi':
-                can_preprocessed = VnmPreprocessing.preprocess2word(
+                can_preprocessed = ViePreprocessor.pp2word(
                     candidate['snippet'])
             else:
-                can_preprocessed = EngPreprocessing.preprocess2word(
+                can_preprocessed = EngPreprocessor.pp2word(
                     candidate['snippet'])
 
             if len(can_preprocessed) < n:
@@ -250,14 +236,14 @@ class CROnline():
 
     @classmethod
     def combine_all_step(cls, data, lang='vi'):
-        chunk_list = cls.chunking(data,lang)
+        chunk_list = cls.chunking(data, lang)
 
-        print(chunk_list)
-        
-        query_list = cls.query_formulate(chunk_list, 20,lang)
+        # print(chunk_list)
+
+        query_list = cls.query_formulate(chunk_list, 20, lang)
         search_res = cls.search_control(query_list)
-        
-        print(search_res)
 
-        filter = cls.download_filtering_hybrid(search_res,data, lang)
+        # print(search_res)
+
+        filter = cls.download_filtering_hybrid(search_res, data, lang)
         return filter

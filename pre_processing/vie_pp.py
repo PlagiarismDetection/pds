@@ -1,8 +1,8 @@
 # library for regular expression operations
 import re
 # library for standardlize VNM, download from https://gist.github.com/nguyenvanhieuvn/72ccf3ddf7d179b281fdae6c0b84942b
-from pds.pre_processing.nlp_utils import *
-# library for VNM word tokenization
+from .utils import *
+# library for VNM word tokenize
 from underthesea import word_tokenize, sent_tokenize
 
 # Import the Vietnamese stopwords file, download from: https://github.com/stopwords/vietnamese-stopwords
@@ -14,54 +14,63 @@ f.close()
 punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
 
 
-class VnmPreprocessing():
+class ViePreprocessor():
     def __init__(self):
         pass
 
-    @staticmethod
-    def sentence_split(text):
-        return sent_tokenize(text)
-
     @classmethod
-    def preprocess2sent(cls, input):
-        text = cls.replace_num(input)
+    def pp2sent(cls, input, replace_num=True, lowercase=True):
+        text = input
+
+        if replace_num:
+            text = cls.replace_number(input, replace_num)
+
         text = cls.standardize_unicode(text)
         text = cls.standardize_marks(text)
-        text = cls.lowercasing(text)
+
+        if lowercase:
+            text = cls.lowercase(text)
 
         sent_list = sent_tokenize(text)
 
         return sent_list
 
     @classmethod
-    def preprocess2word(cls, input):
-        text = cls.replace_num(input)
+    def pp2word(cls, input, replace_num=True, lowercase=True):
+        text = input
+
+        if replace_num:
+            text = cls.replace_number(input, replace_num)
+
         text = cls.standardize_unicode(text)
         text = cls.standardize_marks(text)
 
-        tokens = word_tokenize(text)
-        tokens_clean = cls.lower_rm_stopword_punct(tokens)
+        tokens = cls.tokenize(text)
+        tokens_clean = cls.rm_stopword_punct(tokens)
+
+        if lowercase:
+            tokens_clean = cls.lowercase(tokens_clean)
 
         return tokens_clean
 
     @staticmethod
-    def tokenization(text):
+    def tokenize(text):
         return word_tokenize(text)
 
     @classmethod
-    def replace_num(cls, text):
+    def replace_number(cls, text):
         newtext = text
 
         # remove date time ?
-        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*', ' date', newtext)
-        newtext = re.sub(r'\d+[:]\d+([:]\d+)*', ' time', newtext)
+        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*', ' DATE', newtext)
+        newtext = re.sub(r'\d+[:]\d+([:]\d+)*', ' TIME', newtext)
 
         # remove currency ?
         # newtext = re.sub(r'\d+([.,]\d+)*$', ' dollar', newtext)
         # newtext = re.sub(r'$\d+([.,]\d+)*', ' dollar', newtext)
 
         # remove simple int number, float number may be following space or "(" like "(12.122.122)"
-        newtext = re.sub(r'-?\d+([.,]\d+)*', ' num', newtext)
+        newtext = re.sub(r'-?\d+([.,]\d+)*', ' NUMB', newtext)
         return newtext
 
     @classmethod
@@ -75,16 +84,21 @@ class VnmPreprocessing():
         return std_marks_text
 
     @classmethod
-    def lowercasing(cls, text):
+    def lowercase(cls, text):
         text1 = text
         return text1.lower()
 
     @classmethod
-    def lower_rm_stopword_punct(cls, tokens):
+    def lowercase(cls, tokens):
+        tokens_clean = [word.lower() for word in tokens]
+        return tokens_clean
+
+    @classmethod
+    def rm_stopword_punct(cls, tokens):
         tokens_clean = []
 
         for word in tokens:                         # Go through every word in your tokens list
-            word = word.lower()                     # Lowercasing
+            word = word.lower()                     # lowercase
             if (word not in vnm_stopwords and       # remove stopwords
                     word not in punctuations):      # remove punctuation
                 tokens_clean.append(word)

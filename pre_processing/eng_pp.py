@@ -10,55 +10,65 @@ from nltk.stem import WordNetLemmatizer     # module for lemmatization
 punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
 
 
-class EngPreprocessing():
+class EngPreprocessor():
     def __init__(self):
         pass
 
-    @staticmethod
-    def sentence_split(text):
-        return sent_tokenize(text)
-
     @classmethod
-    def preprocess2sent(cls, input):
-        text = cls.replace_num(input)
-        text = cls.lowercasing(text)
+    def pp2sent(cls, input, replace_num=True, lowercase=True):
+        text = input
+        
+        if replace_num:
+            text = cls.replace_number(input, replace_num)
+        if lowercase:
+            text = cls.lowercase(text)
+        
         sent_list = sent_tokenize(text)
 
         return sent_list
 
     @classmethod
-    def preprocess2word(cls, input):
-        text = cls.replace_num(input)
-        text = cls.lowercasing(text)
-        tokens = word_tokenize(text)
+    def pp2word(cls, input, replace_num=True, lowercase=True, stem=False, lemmatize=False):
+        text = input
+
+        if replace_num:
+            text = cls.replace_number(input, replace_num)
+        if lowercase:
+            text = cls.lowercase(text)
+
+        tokens = cls.tokenize(text)
         tokens_clean = cls.rm_stopword_punct(tokens)
-        # tokens_stem = cls.stemming(tokens_clean)
+
+        if stem:
+            tokens_clean = cls.stemming(tokens_clean)
+        elif lemmatize:
+            tokens_clean = cls.lemmatize(tokens_clean)
 
         return tokens_clean
 
     @classmethod
-    def replace_num(cls, text):
+    def replace_number(cls, text):
         newtext = text
 
         # remove date time ?
-        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*', ' date', newtext)
-        newtext = re.sub(r'\d+[:]\d+([:]\d+)*', ' time', newtext)
+        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*', ' DATE', newtext)
+        newtext = re.sub(r'\d+[:]\d+([:]\d+)*', ' TIME', newtext)
 
         # remove currency ?
         # newtext = re.sub(r'\d+([.,]\d+)*$', ' dollar', newtext)
         # newtext = re.sub(r'$\d+([.,]\d+)*', ' dollar', newtext)
 
         # remove simple int number, float number may be following space or "(" like "(12.122.122)"
-        newtext = re.sub(r'-?\d+([.,]\d+)*', ' num', newtext)
+        newtext = re.sub(r'-?\d+([.,]\d+)*', ' NUMB', newtext)
         return newtext
 
     @classmethod
-    def lowercasing(cls, text):
+    def lowercase(cls, text):
         text1 = text
         return text1.lower()
 
     @staticmethod
-    def tokenization(text):
+    def tokenize(text):
         return word_tokenize(text)
 
     @classmethod
@@ -74,26 +84,26 @@ class EngPreprocessing():
 
     @classmethod
     def stemming(cls, tokens):
-        # Instantiate stemming class
+        # Instantiate stemmer class
         stemmer = PorterStemmer()
 
         # Create an empty list to store the stems
         tokens_stem = []
 
         for word in tokens:
-            stem_word = stemmer.stem(word)  # stemming word
+            stem_word = stemmer.stem(word)  # stem word
             tokens_stem.append(stem_word)   # append to the list
         return tokens_stem
 
     @classmethod
     def lemmatize(cls, tokens):
-        # Instantiate stemming class
+        # Instantiate lemmatizer class
         lemmatizer = WordNetLemmatizer()
 
         # Create an empty list to store the stems
         tokens_lemma = []
 
         for word in tokens:
-            lemma_word = lemmatizer.lemmatize(word)  # stemming word
+            lemma_word = lemmatizer.lemmatize(word)  # lemmatize word
             tokens_lemma.append(lemma_word)         # append to the list
         return tokens_lemma

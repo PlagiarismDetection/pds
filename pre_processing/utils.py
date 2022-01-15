@@ -2,6 +2,7 @@
 
 import regex as re
 
+
 uniChars = "àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶÈÉẺẼẸÊỀẾỂỄỆĐÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴÂĂĐÔƠƯ"
 unsignChars = "aaaaaaaaaaaaaaaaaeeeeeeeeeeediiiiiooooooooooooooooouuuuuuuuuuuyyyyyAAAAAAAAAAAAAAAAAEEEEEEEEEEEDIIIOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUYYYYYAADOOU"
 
@@ -194,19 +195,78 @@ def chuan_hoa_dau_cau_tieng_viet(sentence):
 	End section: Chuyển câu văn về cách gõ dấu kiểu cũ: dùng òa úy thay oà uý
 	Xem tại đây: https://vi.wikipedia.org/wiki/Quy_tắc_đặt_dấu_thanh_trong_chữ_quốc_ngữ
 """
-if __name__ == '__main__':
-    # print(chuan_hoa_dau_cau_tieng_viet('Hoà, đang làm.. gì'))
-    print(chuan_hoa_dau_cau_tieng_viet("anh Híếu, đang làm gì vâỵ."))
-    # f = open('/home/lap60313/data/corpus-full.txt', encoding='utf8')
-    # sentence = f.readline()
-    # current_line = 0
-    # while sentence:
-    #     current_line += 1
-    #     if current_line % 1000 == 0:
-    #         print('Current line', str(current_line))
-    #     sentence = sentence.lower().strip()
-    #     sentence = convertwindown1525toutf8(sentence)
-    #     sentence = chuan_hoa_dau_cau_tieng_viet(sentence)
-    #     with open('/home/lap60313/data/corpus-full.txt.out', 'a+', encoding='utf8') as fp:
-    #         fp.write(sentence + "\n")
-    #     sentence = f.readline()
+
+
+
+"""
+	Start section: Tách đoạn
+"""
+
+
+def split_to_paras(data):
+    punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
+    temp = data
+
+    # Join long word splited by newline, ex:
+    # re-
+    # -move
+    temp = re.sub(r'\-(\n)+\-?', '', temp)
+
+    # Remove link, url, start with http, end with \s
+    temp = re.sub(r"http.*?\s", ' ', temp)
+
+    # Remove repeated string
+    # Ex: .... ____
+    temp = re.sub(r"[^a-zA-Z0-9\n]{4,}", ' ', temp)
+
+    # Remove repeated string having space
+    # Ex: . . .  . _     _  _ _ _
+    temp = re.sub(r"\s+(?:.\s+){2,}", ' ', temp)
+
+    # Delimeter para by @@@
+    # All new lines begin with •-–+, consider is a paragraph with 1 line ???
+    temp = re.sub(r'\n+[•\-–+]\s', r'@@@', temp)
+
+    # Newline appear more than 4 => new para
+    temp = re.sub(r'\n{4,}', r'@@@', temp)
+
+    # Remove newline after a word, comma or parenthese,... (not punctuation)
+    # But will split new sentence in para ???
+    temp = re.sub(r"([\w,(\"\'])(\n)+", r'\1 ', temp)
+
+    # All lines begin with capital word is begin para
+    # But how about abbreviations: HTML CSS or pronoun: John ???
+    temp = re.sub(r'\n+([A-Z])', r'@@@\1', temp)
+
+    # Newline after punctuation: . ? ! => new para
+    temp = re.sub(r"([.?!])\n+", r'\1@@@', temp)
+
+    # Remove Title
+    # All lines begin with number then ./) then capital, is title
+    temp = re.sub(r'\n+\d[./)\-\d\s]{0,10}[A-Z].{0,85}\n', r'@@@', temp)
+
+    # Remove all \n remain
+    temp = re.sub(r'\n', ' ', temp)
+
+    # Remove all space at the start and end of para
+    temp = re.sub(r'\s*@@@\s*', '@@@', temp)
+
+    # Split paragraph by change @@@ to \n and split
+    data_text = re.sub('@@@', '\n', temp)
+    data_list = data_text.split('\n')
+
+    # print(data_list)
+
+    para_list = []
+    for par in data_list:
+            if len(par) > 85:
+                # if not par[0].isdigit() and not par[0] in punctuations:
+                #     if not re.match(r"[.−_]{3,}", par):
+                para_list.append(par)
+    
+    return para_list
+
+
+"""
+	End section: Tách đoạn
+"""
