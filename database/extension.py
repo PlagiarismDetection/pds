@@ -14,12 +14,12 @@ class ExDatabase(Database):
         self.extensionFields.append(fieldname)
         return self.updateDocuments(colname, updateValue={fieldname: defaultValue})
 
-    def updateFieldBasedOnContent(self, colname, fieldname, func):
-        # -> None: update a field value base on another field(s)
+    def updateFieldBasedOnField(self, colname, fieldname, func, otherField='Content'):
+        # -> None: update a field value base on another
         docs = self.db[colname].find({})
         for doc in docs:
             id = doc['_id']
-            content = doc['Content']
+            content = doc[otherField]
             self.updateDocuments(colname, filter={'_id': id}, updateValue={
                                  fieldname: func(content)})
         self.extensionFields.append(fieldname)
