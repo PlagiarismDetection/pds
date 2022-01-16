@@ -61,12 +61,12 @@ class CROnline():
         # Filtering chunk >= 10 word, word >= 4 and not contain special words.
         pp_chunk_list = ''
         if lang == 'en':
-            pp_chunk_list = [EngPreprocessor.pp2word(
+            pp_chunk_list = [EngPreprocessor.tokenize(
                 chunk) for chunk in chunk_list]
         else:
-            pp_chunk_list = [ViePreprocessor.pp2word(
+            pp_chunk_list = [ViePreprocessor.tokenize(
                 chunk) for chunk in chunk_list]
-        pp_chunk_list = [list(filter(lambda w: (len(w) >= 4) & (w not in ['date', 'time', 'http', 'https']) & (
+        pp_chunk_list = [list(filter(lambda w: (len(w) >= 4) & (w not in ['DATE', 'TIME', 'NUMB', 'http', 'https']) & (
             not w.startswith(r"//")), chunk)) for chunk in pp_chunk_list]
         pp_chunk_list = list(filter(lambda c: (len(c) >= 10), pp_chunk_list))
         return pp_chunk_list
@@ -202,10 +202,10 @@ class CROnline():
         n = 3
 
         if lang == 'vi':
-            sus_preprocessed = ViePreprocessor.pp2word(
+            sus_preprocessed = ViePreprocessor.tokenize(
                 suspicious_doc_string)
         else:
-            sus_preprocessed = EngPreprocessor.pp2word(
+            sus_preprocessed = EngPreprocessor.tokenize(
                 suspicious_doc_string)
 
         sus_grams = ngrams(sus_preprocessed, n)
@@ -216,10 +216,10 @@ class CROnline():
 
         for candidate in search_results:
             if lang == 'vi':
-                can_preprocessed = ViePreprocessor.pp2word(
+                can_preprocessed = ViePreprocessor.tokenize(
                     candidate['snippet'])
             else:
-                can_preprocessed = EngPreprocessor.pp2word(
+                can_preprocessed = EngPreprocessor.tokenize(
                     candidate['snippet'])
 
             if len(can_preprocessed) < n:
@@ -238,12 +238,12 @@ class CROnline():
     def combine_all_step(cls, data, lang='vi'):
         chunk_list = cls.chunking(data, lang)
 
-        # print(chunk_list)
+        print(f">>> Chunking to {len(chunk_list)} chunks")
 
         query_list = cls.query_formulate(chunk_list, 20, lang)
         search_res = cls.search_control(query_list)
 
-        # print(search_res)
+        print(f">>> Search Online found {len(search_res)} sources" )
 
         filter = cls.download_filtering_hybrid(search_res, data, lang)
         return filter

@@ -78,16 +78,15 @@ def vn_sentence_to_telex_type(sentence):
         words[index] = vn_word_to_telex_type(word)
     return ' '.join(words)
 
-
 """
 	End section: Chuyển câu văn về kiểu gõ telex khi không bật Unikey
 """
+
 
 """
 	Start section: Chuyển câu văn về cách gõ dấu kiểu cũ: dùng òa úy thay oà uý
 	Xem tại đây: https://vi.wikipedia.org/wiki/Quy_t%E1%BA%AFc_%C4%91%E1%BA%B7t_d%E1%BA%A5u_thanh_trong_ch%E1%BB%AF_qu%E1%BB%91c_ng%E1%BB%AF
 """
-
 
 def chuan_hoa_dau_tu_tieng_viet(word):
     if not is_valid_vietnam_word(word):
@@ -202,8 +201,7 @@ def chuan_hoa_dau_cau_tieng_viet(sentence):
 	Start section: Tách đoạn
 """
 
-
-def split_to_paras(data):
+def split_to_paras(data, isPDF=False):
     punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
     temp = data
 
@@ -217,7 +215,8 @@ def split_to_paras(data):
 
     # Remove repeated string
     # Ex: .... ____
-    temp = re.sub(r"[^a-zA-Z0-9\n]{4,}", ' ', temp)
+    temp = re.sub(
+        r"[^a-zA-Z0-9àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶÈÉẺẼẸÊỀẾỂỄỆĐÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴÂĂĐÔƠƯ\n]{4,}", ' ', temp)
 
     # Remove repeated string having space
     # Ex: . . .  . _     _  _ _ _
@@ -259,14 +258,21 @@ def split_to_paras(data):
 
     para_list = []
     for par in data_list:
-            if len(par) > 85:
-                # if not par[0].isdigit() and not par[0] in punctuations:
-                #     if not re.match(r"[.−_]{3,}", par):
-                para_list.append(par)
-    
+        if len(par) > 85:
+            # if not par[0].isdigit() and not par[0] in punctuations:
+            #     if not re.match(r"[.−_]{3,}", par):
+            para_list.append(par)
     return para_list
-
 
 """
 	End section: Tách đoạn
 """
+
+
+def remove_puntuation(text):
+    # Replace all character not word utf-8 [a-zA-Z0-9_] or newline to space
+    cleanStr = re.sub('[^\w\n]+', ' ', text)
+    # Replace repeated underscore from 2 times to space
+    cleanStr = re.sub('_{2,}', ' ', cleanStr)
+
+    return cleanStr

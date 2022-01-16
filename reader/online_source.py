@@ -37,10 +37,10 @@ class ReadOnlSource():
 
         if response.status_code == 200:
             file_path = os.path.join(output_dir, os.path.basename(url))
-            print('Downloading ', file_path, '...')
+            print('>>> Downloading ', file_path, '...')
             with open(file_path, 'wb') as f:
                 f.write(response.content)
-            print('Finish')
+            print('>>> Finish')
             return file_path
 
         # print('Cant download from ', url)
@@ -103,13 +103,13 @@ class ReadOnlSource():
                 if cls.is_pdf_url(searchres['url']):
                     content = cls.read_pdf_from_url(searchres['url'])
                 else:
-                    print('Read from URL')
+                    print('>>> Read from URL')
                     content = cls.read_text_from_url(searchres['url'])
             except:
-                print('Cant read url: ', searchres['url'])
+                print('>>> Cant read url: ', searchres['url'])
 
             if content:
                 onlSrc = OnlSource(searchres, content)
                 onlList.append(onlSrc)
-        print('Read Online source Finish')
+        print('>>> Read Online source Finish')
         return onlList

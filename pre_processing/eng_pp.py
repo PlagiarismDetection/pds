@@ -19,7 +19,7 @@ class EngPreprocessor():
         text = input
         
         if replace_num:
-            text = cls.replace_number(input, replace_num)
+            text = cls.replace_number(text)
         if lowercase:
             text = cls.lowercase(text)
         
@@ -32,7 +32,7 @@ class EngPreprocessor():
         text = input
 
         if replace_num:
-            text = cls.replace_number(input, replace_num)
+            text = cls.replace_number(text)
         if lowercase:
             text = cls.lowercase(text)
 

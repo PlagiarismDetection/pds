@@ -23,13 +23,13 @@ class ViePreprocessor():
         text = input
 
         if replace_num:
-            text = cls.replace_number(input, replace_num)
+            text = cls.replace_number(text)
 
         text = cls.standardize_unicode(text)
         text = cls.standardize_marks(text)
 
         if lowercase:
-            text = cls.lowercase(text)
+            text = text.lower()
 
         sent_list = sent_tokenize(text)
 
@@ -40,7 +40,7 @@ class ViePreprocessor():
         text = input
 
         if replace_num:
-            text = cls.replace_number(input, replace_num)
+            text = cls.replace_number(text)
 
         text = cls.standardize_unicode(text)
         text = cls.standardize_marks(text)
@@ -82,11 +82,6 @@ class ViePreprocessor():
     def standardize_marks(cls, text):
         std_marks_text = chuan_hoa_dau_cau_tieng_viet(text)
         return std_marks_text
-
-    @classmethod
-    def lowercase(cls, text):
-        text1 = text
-        return text1.lower()
 
     @classmethod
     def lowercase(cls, tokens):
