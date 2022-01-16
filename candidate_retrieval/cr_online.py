@@ -18,9 +18,9 @@ class CROnline():
         pass    
 
     @classmethod
-    def chunking(cls, data, lang='en'):
+    def chunking(cls, data, lang='en', isPDF=False):
         # Split data text to get important paragraph
-        para_list = split_to_paras(data)
+        para_list = split_to_paras(data, isPDF=isPDF)
 
         # Chunking each paragraph to chunk of 1 - 3 sentences.
         # Use Preprocessing to sent to split each paragraph to list of sent.
@@ -120,6 +120,7 @@ class CROnline():
         s = requests.Session()
         url = 'https://www.bing.com/search?q=' + query + \
             "+filetype%3A&go=Search&qs=ds&form=QBRE"
+        print(f">>> Search by Bing URL: {url}")
 
         page = s.get(url, headers=get_header)
         soup = BeautifulSoup(page.text, "html.parser")
@@ -153,12 +154,12 @@ class CROnline():
         return result
 
     @classmethod
-    def download_filtering_hybrid(cls, search_results, suspicious_doc_string, lang='vi'):
+    def download_filtering_hybrid(cls, search_results, suspicious_doc_string, lang='en'):
         check_duplicated = cls.check_duplicate_url(search_results, lang)
         return cls.snippet_based_checking(check_duplicated, suspicious_doc_string, lang)
 
     @staticmethod
-    def check_duplicate_url(search_results, lang='vi'):
+    def check_duplicate_url(search_results, lang='en'):
         skipWebLst = ['tailieumienphi.vn', 'baovanhoa.vn', 'nslide.com', 'www.coursehero.com',
                       'towardsdatascience.com', 'medium.com']
         skipTailLst = ['model', 'aspx', 'xls', 'pptx', 'xml', 'jar', 'zip', '']
@@ -197,7 +198,7 @@ class CROnline():
         return check_duplicated
 
     @staticmethod
-    def snippet_based_checking(search_results, suspicious_doc_string, lang='vi', threshold=1):
+    def snippet_based_checking(search_results, suspicious_doc_string, lang='en', threshold=1):
         # Check overlap on 5-grams on suspicious document and candidate document
         n = 3
 
@@ -235,8 +236,8 @@ class CROnline():
         return check_snippet_based
 
     @classmethod
-    def combine_all_step(cls, data, lang='vi'):
-        chunk_list = cls.chunking(data, lang)
+    def combine_all_step(cls, data, lang='en', isPDF=False):
+        chunk_list = cls.chunking(data, lang, isPDF)
 
         print(f">>> Chunking to {len(chunk_list)} chunks")
 
@@ -246,4 +247,7 @@ class CROnline():
         print(f">>> Search Online found {len(search_res)} sources" )
 
         filter = cls.download_filtering_hybrid(search_res, data, lang)
+        print(f">>> After Filtered found {len(filter)} sources")
+        print(filter)
+
         return filter

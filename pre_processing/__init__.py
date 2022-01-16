@@ -24,7 +24,7 @@ if __name__ == '__main__':
     from pds.pre_processing import EngPreprocessor
 
     # Preprocess to paragraphs
-    para_list = split_to_paras(data)
+    para_list = split_to_paras(data, isPDF=False)
 
     # Preprocess to sentences
     sent_list = EngPreprocessor.pp2sent(

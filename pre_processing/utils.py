@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import regex as re
-
+import regex
+import re
 
 uniChars = "àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶÈÉẺẼẸÊỀẾỂỄỆĐÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴÂĂĐÔƠƯ"
 unsignChars = "aaaaaaaaaaaaaaaaaeeeeeeeeeeediiiiiooooooooooooooooouuuuuuuuuuuyyyyyAAAAAAAAAAAAAAAAAEEEEEEEEEEEDIIIOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUYYYYYAADOOU"
@@ -22,7 +22,7 @@ dicchar = loaddicchar()
 
 
 def convert_unicode(txt):
-    return re.sub(
+    return regex.sub(
         r'à|á|ả|ã|ạ|ầ|ấ|ẩ|ẫ|ậ|ằ|ắ|ẳ|ẵ|ặ|è|é|ẻ|ẽ|ẹ|ề|ế|ể|ễ|ệ|ì|í|ỉ|ĩ|ị|ò|ó|ỏ|õ|ọ|ồ|ố|ổ|ỗ|ộ|ờ|ớ|ở|ỡ|ợ|ù|ú|ủ|ũ|ụ|ừ|ứ|ử|ữ|ự|ỳ|ý|ỷ|ỹ|ỵ|À|Á|Ả|Ã|Ạ|Ầ|Ấ|Ẩ|Ẫ|Ậ|Ằ|Ắ|Ẳ|Ẵ|Ặ|È|É|Ẻ|Ẽ|Ẹ|Ề|Ế|Ể|Ễ|Ệ|Ì|Í|Ỉ|Ĩ|Ị|Ò|Ó|Ỏ|Õ|Ọ|Ồ|Ố|Ổ|Ỗ|Ộ|Ờ|Ớ|Ở|Ỡ|Ợ|Ù|Ú|Ủ|Ũ|Ụ|Ừ|Ứ|Ử|Ữ|Ự|Ỳ|Ý|Ỷ|Ỹ|Ỵ',
         lambda x: dicchar[x.group()], txt)
 
@@ -182,7 +182,7 @@ def chuan_hoa_dau_cau_tieng_viet(sentence):
     #sentence = sentence.lower()
     words = sentence.split()
     for index, word in enumerate(words):
-        cw = re.sub(r'(^\p{P}*)([p{L}.]*\p{L}+)(\p{P}*$)',
+        cw = regex.sub(r'(^\p{P}*)([p{L}.]*\p{L}+)(\p{P}*$)',
                     r'\1/\2/\3', word).split('/')
         if len(cw) == 3:
             cw[1] = chuan_hoa_dau_tu_tieng_viet(cw[1])
@@ -222,30 +222,36 @@ def split_to_paras(data, isPDF=False):
     # Ex: . . .  . _     _  _ _ _
     temp = re.sub(r"\s+(?:.\s+){2,}", ' ', temp)
 
-    # Delimeter para by @@@
-    # All new lines begin with •-–+, consider is a paragraph with 1 line ???
-    temp = re.sub(r'\n+[•\-–+]\s', r'@@@', temp)
+    # Delimeter paragraph by @@@
+    if isPDF:
+        # All new lines begin with •-–+, consider is a paragraph with 1 line ???
+        temp = re.sub(r'\n+[•\-–+]\s', r'@@@', temp)
 
-    # Newline appear more than 4 => new para
-    temp = re.sub(r'\n{4,}', r'@@@', temp)
+        # Newline appear more than 4 => new para
+        temp = re.sub(r'\n{4,}', r'@@@', temp)
 
-    # Remove newline after a word, comma or parenthese,... (not punctuation)
-    # But will split new sentence in para ???
-    temp = re.sub(r"([\w,(\"\'])(\n)+", r'\1 ', temp)
+        # Remove newline after a word, comma or parenthese,... (not punctuation)
+        # But will split new sentence in para ???
+        temp = re.sub(r"([\w,(\"\'])(\n)+", r'\1 ', temp)
 
-    # All lines begin with capital word is begin para
-    # But how about abbreviations: HTML CSS or pronoun: John ???
-    temp = re.sub(r'\n+([A-Z])', r'@@@\1', temp)
+        # All lines begin with capital word is begin para
+        # But how about abbreviations: HTML CSS or pronoun: John ???
+        temp = re.sub(r'\n+([A-Z])', r'@@@\1', temp)
 
-    # Newline after punctuation: . ? ! => new para
-    temp = re.sub(r"([.?!])\n+", r'\1@@@', temp)
+        # Newline after punctuation: . ? ! => new para
+        temp = re.sub(r"([.?!])\n+", r'\1@@@', temp)
 
-    # Remove Title
-    # All lines begin with number then ./) then capital, is title
-    temp = re.sub(r'\n+\d[./)\-\d\s]{0,10}[A-Z].{0,85}\n', r'@@@', temp)
+        # Remove Title
+        # All lines begin with number then ./) then capital, is title
+        temp = re.sub(r'\n+\d[./)\-\d\s]{0,10}[A-Z].{0,85}\n', r'@@@', temp)
 
-    # Remove all \n remain
-    temp = re.sub(r'\n', ' ', temp)
+        # Remove all \n remain
+        temp = re.sub(r'\n', ' ', temp)
+    
+    else:
+        # If text is not read from PDF
+        # Replace continous newlines with delimeter
+        temp = re.sub(r'\n+', r'@@@', temp)
 
     # Remove all space at the start and end of para
     temp = re.sub(r'\s*@@@\s*', '@@@', temp)
