@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 
 from pds.pre_processing import ViePreprocessor
 from pds.pre_processing import EngPreprocessor
-from pds.pre_processing.utils import split_to_paras
+from pds.pre_processing.utils import split_para
 from pds.candidate_retrieval.similarity_metric import SimilarityMetric
 
 
@@ -20,7 +20,7 @@ class CROnline():
     @classmethod
     def chunking(cls, data, lang='en', isPDF=False):
         # Split data text to get important paragraph
-        para_list = split_to_paras(data, isPDF=isPDF)
+        para_list = split_para(data, isPDF=isPDF)
 
         # Chunking each paragraph to chunk of 1 - 3 sentences.
         # Use Preprocessing to sent to split each paragraph to list of sent.

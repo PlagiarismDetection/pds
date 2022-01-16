@@ -19,12 +19,12 @@ if __name__ == '__main__':
             You can use an RNN using LSTM units in supervised fashion, using an optimization algorithm, like gradient descent, combined with backpropagation through time to calculate the gradients needed during the optimization process, so that you can change each weight of the LSTM network in proportion to the derivative of the error (at the output layer of the LSTM network) with respect to corresponding weight.
             """
 
-    from pds.pre_processing.utils import split_to_paras
+    from pds.pre_processing.utils import split_para
     from pds.pre_processing import ViePreprocessor
     from pds.pre_processing import EngPreprocessor
 
     # Preprocess to paragraphs
-    para_list = split_to_paras(data, isPDF=False)
+    para_list = split_para(data, isPDF=False)
 
     # Preprocess to sentences
     sent_list = EngPreprocessor.pp2sent(

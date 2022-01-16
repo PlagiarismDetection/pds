@@ -201,7 +201,7 @@ def chuan_hoa_dau_cau_tieng_viet(sentence):
 	Start section: Tách đoạn
 """
 
-def split_to_paras(data, isPDF=False):
+def split_para(data, isPDF=False):
     punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
     temp = data
 
