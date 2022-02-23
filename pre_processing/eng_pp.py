@@ -47,19 +47,19 @@ class EngPreprocessor():
         return tokens_clean
 
     @classmethod
-    def replace_number(cls, text):
+    def replace_number(cls, text, remove=False):
         newtext = text
 
         # remove date time ?
-        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*', ' DATE', newtext)
-        newtext = re.sub(r'\d+[:]\d+([:]\d+)*', ' TIME', newtext)
+        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*', '' if remove else ' DATE', newtext)
+        newtext = re.sub(r'\d+[:]\d+([:]\d+)*', '' if remove else ' TIME', newtext)
 
         # remove currency ?
         # newtext = re.sub(r'\d+([.,]\d+)*$', ' dollar', newtext)
         # newtext = re.sub(r'$\d+([.,]\d+)*', ' dollar', newtext)
 
         # remove simple int number, float number may be following space or "(" like "(12.122.122)"
-        newtext = re.sub(r'-?\d+([.,]\d+)*', ' NUMB', newtext)
+        newtext = re.sub(r'-?\d+([.,]\d+)*', '' if remove else ' NUMB', newtext)
         return newtext
 
     @classmethod
