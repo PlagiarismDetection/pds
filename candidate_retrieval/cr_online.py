@@ -2,6 +2,7 @@ import re
 import pandas as pd
 import numpy as np
 import requests
+import itertools
 from bs4 import BeautifulSoup
 from nltk import ngrams, word_tokenize as eng_tokenizer
 from underthesea import word_tokenize as vie_tokenizer
@@ -154,12 +155,18 @@ class CROnline():
         return result
 
     @classmethod
-    def download_filtering_hybrid(cls, search_results, suspicious_doc_string, lang='en'):
-        check_duplicated = cls.check_duplicate_url(search_results, lang)
-        return cls.snippet_based_checking(check_duplicated, suspicious_doc_string, lang)
+    def download_filtering_hybrid(cls, search_results, lang='en'):
+        for pp_res in search_results:
+            candidate_list = pp_res['candidate_list']
+            para_content = pp_res['input_para']
+            check_duplicated = CROnline.check_duplicate_url(candidate_list)
+            snippet_based_checking  = CROnline.snippet_based_checking(check_duplicated, para_content, lang='en', threshold=1)
+            pp_res['candidate_list']= snippet_based_checking
+        return search_results
 
     @staticmethod
     def check_duplicate_url(search_results, lang='en'):
+        # Search result contain list of list all search results on each paragraph
         skipWebLst = ['tailieumienphi.vn', 'baovanhoa.vn', 'nslide.com', 'www.coursehero.com',
                       'towardsdatascience.com', 'medium.com']
         skipTailLst = ['model', 'aspx', 'xls', 'pptx', 'xml', 'jar', 'zip', '']
@@ -167,6 +174,7 @@ class CROnline():
         check_duplicated = []
         url_list = []
         title_list = []
+
 
         for search_res in search_results:
             title = search_res['title']
@@ -191,15 +199,17 @@ class CROnline():
             # print(sm_title_list)
             max_sm = 0 if len(sm_title_list) == 0 else max(sm_title_list)
 
-            if (url not in url_list) and max_sm <= 0.5:
+            if (url not in url_list) and max_sm <= 0.6:
                 check_duplicated.append(search_res)
                 url_list.append(url)
                 title_list.append(pp_title)
         return check_duplicated
 
+    
+
     @staticmethod
     def snippet_based_checking(search_results, suspicious_doc_string, lang='en', threshold=1):
-        # Check overlap on 5-grams on suspicious document and candidate document
+        # Check overlap on 3-grams on suspicious document and candidate document
         n = 3
 
         if lang == 'vi':
@@ -246,7 +256,7 @@ class CROnline():
 
         print(f">>> Search Online found {len(search_res)} sources" )
 
-        filter = cls.download_filtering_hybrid(search_res, data, lang)
+        filter = cls.download_filtering_hybrid(search_res, lang)
         print(f">>> After Filtered found {len(filter)} sources")
         print(filter)
 
