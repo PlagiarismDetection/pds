@@ -102,25 +102,37 @@ class ReadOnlSource():
         return url
 
     @classmethod
-    def getOnlList(cls, searchlist):
+    def read_onl(cls, url):
+        content = ''
+         # Handle link of some scientific article
+        url = cls.handle_special_url(url)
+        try:
+            if cls.is_pdf_url(url):
+                content = cls.read_pdf_from_url(url)
+            else:
+                print('>>> Read from URL')
+                content = cls.read_text_from_url(url)
+        except Exception as e:
+            print('>>> Cant read url: ', url)
+            print(e)
+        return content
+
+    
+    @classmethod
+    def getOnlList_PP(cls, searchlist_pp):
         onlList = []
-
-        # Handle link of some scientific article
-        for searchres in searchlist:
-            searchres['url'] =  cls.handle_special_urls(searchres['url'])
-            content = ''
-            try:
-                if cls.is_pdf_url(searchres['url']):
-                    content = cls.read_pdf_from_url(searchres['url'])
-                else:
-                    print('>>> Read from URL')
-                    content = cls.read_text_from_url(searchres['url'])
-            except Exception as e:
-                print('>>> Cant read url: ', searchres['url'])
-                print(e)
-
+        candidate_list = searchlist_pp['candidate_list']
+        for can in candidate_list:
+            content = cls.read_onl(can['url'])
             if content:
-                onlSrc = OnlSource(searchres, content)
-                onlList.append(onlSrc)
-        print('>>> Read Online source Finish')
+                can['content'] = content
+                onlList.append(can)
+        searchlist_pp['candidate_list'] = onlList
         return onlList
+
+    @classmethod
+    def getOnlList_Doc(cls, search_result):
+        for searchres_pp in search_result:
+            cls.getOnlList_PP(searchres_pp)
+        print('Read Online source Finish')
+        return search_result
