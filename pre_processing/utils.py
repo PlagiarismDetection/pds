@@ -78,6 +78,7 @@ def vn_sentence_to_telex_type(sentence):
         words[index] = vn_word_to_telex_type(word)
     return ' '.join(words)
 
+
 """
 	End section: Chuyển câu văn về kiểu gõ telex khi không bật Unikey
 """
@@ -87,6 +88,7 @@ def vn_sentence_to_telex_type(sentence):
 	Start section: Chuyển câu văn về cách gõ dấu kiểu cũ: dùng òa úy thay oà uý
 	Xem tại đây: https://vi.wikipedia.org/wiki/Quy_t%E1%BA%AFc_%C4%91%E1%BA%B7t_d%E1%BA%A5u_thanh_trong_ch%E1%BB%AF_qu%E1%BB%91c_ng%E1%BB%AF
 """
+
 
 def chuan_hoa_dau_tu_tieng_viet(word):
     if not is_valid_vietnam_word(word):
@@ -183,7 +185,7 @@ def chuan_hoa_dau_cau_tieng_viet(sentence):
     words = sentence.split()
     for index, word in enumerate(words):
         cw = regex.sub(r'(^\p{P}*)([p{L}.]*\p{L}+)(\p{P}*$)',
-                    r'\1/\2/\3', word).split('/')
+                       r'\1/\2/\3', word).split('/')
         if len(cw) == 3:
             cw[1] = chuan_hoa_dau_tu_tieng_viet(cw[1])
         words[index] = ''.join(cw)
@@ -196,10 +198,10 @@ def chuan_hoa_dau_cau_tieng_viet(sentence):
 """
 
 
-
 """
 	Start section: Tách đoạn
 """
+
 
 def split_para(data, isPDF=False):
     punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
@@ -247,7 +249,7 @@ def split_para(data, isPDF=False):
 
         # Remove all \n remain
         temp = re.sub(r'\n', ' ', temp)
-    
+
     else:
         # If text is not read from PDF
         # Replace continous newlines with delimeter
@@ -269,6 +271,7 @@ def split_para(data, isPDF=False):
             #     if not re.match(r"[.−_]{3,}", par):
             para_list.append(par)
     return para_list
+
 
 """
 	End section: Tách đoạn
