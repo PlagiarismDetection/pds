@@ -2,7 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from tika import parser
-
+import re
 
 class OnlSource():
     def __init__(self, metadata, content):
@@ -23,17 +23,15 @@ class OnlSource():
     def getContent(self):
         return self.content
 
-
 class ReadOnlSource():
     def __init__(self):
         pass
 
     @staticmethod
     def download_pdf_from_url(url, output_dir=''):
-        if url.find('?') > 0:
-            url = url[:url.find('?')]
-
-        response = requests.get(url)
+        # Max 10 seconds to connect to server and max 20 seconds to wait on response
+        response = requests.get(url, timeout=(30, 30))
+        print(response.headers)
 
         if response.status_code == 200:
             file_path = os.path.join(output_dir, os.path.basename(url))
@@ -58,46 +56,58 @@ class ReadOnlSource():
 
     @staticmethod
     def read_text_from_url(url):
-        response = requests.get(url, verify=False)
-
+        # Max 5 seconds to connect to server and max 10 seconds to wait on response
+        response = requests.get(url, verify=False, timeout=(30, 30))
+  
         if response.status_code == 200:
-
-            soup = BeautifulSoup(response.text, features="html.parser")
-
-            # kill all script and style elements
-            for script in soup(["script", "style"]):
+            soup = BeautifulSoup(response.content, features="html.parser")
+        
+            # kill all script and style, math elements
+            for script in soup(["script", "style","math"]):
                 script.extract()    # rip it out
 
-            # # get text
-            # case 1: Get all text
-            # text = soup.body.get_text()
-            # case 2: Get all text in p tag
-            text = ""
+            # Get all text in p tag
+            texts = []
             all_para = soup.body.find_all("p")
             for para in all_para:
-                text += para.get_text()
+                handle_text = re.sub(' +', ' ',para.text.strip())
+                remove_cite = re.sub('\[.*?\]', '',handle_text) #example [1][2]...
+                texts.append(remove_cite)
 
-            # break into lines and remove leading and trailing space on each
-            lines = (line.strip() for line in text.splitlines())
-            # break multi-headlines into a line each
-            chunks = (phrase.strip()
-                      for line in lines for phrase in line.split("  "))
             # drop blank lines
-            text = '\n'.join(chunk for chunk in chunks if chunk)
-            return text
-
-        # print('Cant read ', url)
+            content = '\n'.join(text for text in texts if text)
+            return content
         return False
 
     @staticmethod
     def is_pdf_url(url):
+        if url.find('?') > 0:
+            url = url[:url.find('?')]
         return url.endswith('.pdf')
+
+    @staticmethod
+    def handle_special_url(url):
+        # Arxiv
+        if re.search("arxiv.org/abs",url):
+            url=re.sub("arxiv.org/abs", "arxiv.org/pdf",url)+'.pdf'
+        # Researchgate
+        elif re.search("researchgate.net/publication", url):
+            response = requests.get(url, verify=False)
+            soup = BeautifulSoup(response.content, "html.parser")
+            child_soup = soup.find_all('a')
+            text = "Download full-text PDF"
+            for i in child_soup:
+                if i.text == text:
+                    url = i['href']
+        return url
 
     @classmethod
     def getOnlList(cls, searchlist):
         onlList = []
 
+        # Handle link of some scientific article
         for searchres in searchlist:
+            searchres['url'] =  cls.handle_special_urls(searchres['url'])
             content = ''
             try:
                 if cls.is_pdf_url(searchres['url']):
@@ -105,8 +115,9 @@ class ReadOnlSource():
                 else:
                     print('>>> Read from URL')
                     content = cls.read_text_from_url(searchres['url'])
-            except:
+            except Exception as e:
                 print('>>> Cant read url: ', searchres['url'])
+                print(e)
 
             if content:
                 onlSrc = OnlSource(searchres, content)
