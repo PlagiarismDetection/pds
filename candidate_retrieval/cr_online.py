@@ -23,33 +23,38 @@ class CROnline():
         # Split data text to get important paragraph
         para_list = split_para(data, isPDF=isPDF)
 
-        # Chunking each paragraph to chunk of 1 - 3 sentences.
-        # Use Preprocessing to sent to split each paragraph to list of sent.
-        # Chunk has n sentences, if n/3 = 1 => last chunk has 4 sents, else chunking to 2 - 3 sentences.
+        # If isPDF, Chunking each paragraph to chunk of 1 - 3 sentences.
+        # Elif not isPDF, Each sentence is a chunk.
+        # Use Preprocessor module to split each paragraph to list of sent.
+        # Chunk has n sentences, if n/3 = 1 => semi-last and last chunk has 2 sents, else chunking to 2 - 3 sentences.
         # Combine all sentences of a chunk to 1 string, filter if chunk has less than 100 character, and add to chunklist.
         chunk_list = []
 
         for par in para_list:
             # Use Preprocessing to sent to split each paragraph to list of sent.
-            sent_list = ''
             if lang == 'en':
                 sent_list = EngPreprocessor.pp2sent(par)
             else:
                 sent_list = ViePreprocessor.pp2sent(par)
 
-            # Chunking each paragraph to many chunks of 2 - 4 sentences.
-            chunks = [sent_list[i: i + 3] for i in range(0, len(sent_list), 3)]
+            if isPDF:
+                # Chunking each paragraph to many chunks of 3 sentences.
+                chunks = [sent_list[i: i + 3]
+                          for i in range(0, len(sent_list), 3)]
 
-            if len(sent_list) > 3 & len(sent_list) % 3 == 1:
-                chunks[-2] += chunks[-1]
-                chunks = chunks[:-1]
+                # If a chunk has 4 sent => divide into 2 chunks with 2 sents.
+                if len(sent_list) > 3 & len(sent_list) % 3 == 1:
+                    chunks[-1] = [chunks[-2][-1]] + chunks[-1]
+                    chunks[-2] = chunks[-2][:-1]
 
-            # Combine all sentences of a chunk to 1 string
-            chunks = [' '.join(c) for c in chunks]
+                # Combine all sentences of a chunk to 1 string
+                chunk_list += [' '.join(c) for c in chunks]
+            else:
+                # Elif not isPDF, Each sentence is a chunk
+                chunk_list += sent_list
 
-            # Filter for chunk > 100 char, and add to chunklist.
-            # filter(lambda c: len(c) > 100, chunks)
-            chunk_list += [c for c in chunks if len(c) > 100]
+        # Filter for chunk > 100 char, and add to chunklist.
+        chunk_list = [c for c in chunk_list if len(c) > 100]
 
         # print(len(chunk_list))
         # print([len(c) for c in chunk_list])
@@ -59,17 +64,28 @@ class CROnline():
     @staticmethod
     def preprocess_chunk_list(chunk_list, lang='en'):
         # Preprocessing a chunk to remove stopword and punctuation.
-        # Filtering chunk >= 10 word, word >= 4 and not contain special words.
-        pp_chunk_list = ''
-        if lang == 'en':
-            pp_chunk_list = [EngPreprocessor.tokenize(
-                chunk) for chunk in chunk_list]
-        else:
-            pp_chunk_list = [ViePreprocessor.tokenize(
-                chunk) for chunk in chunk_list]
-        pp_chunk_list = [list(filter(lambda w: (len(w) >= 4) & (w not in ['DATE', 'TIME', 'NUMB', 'http', 'https']) & (
-            not w.startswith(r"//")), chunk)) for chunk in pp_chunk_list]
-        pp_chunk_list = list(filter(lambda c: (len(c) >= 10), pp_chunk_list))
+        pp_chunk_list = []
+
+        for chunk in chunk_list:
+            # PP each chunk to list of tokens
+            pp_chunk = []
+            if lang == 'en':
+                pp_chunk = EngPreprocessor.pp2word(
+                    chunk, replace_num=True, lowercase=True)
+            else:
+                pp_chunk = ViePreprocessor.pp2word(
+                    chunk, replace_num=True, lowercase=True)
+
+            # Filtering word >= 4 and not contain special words.
+            pp_chunk = [w for w in pp_chunk if len(w) >= 4]
+            pp_chunk = [w for w in pp_chunk if w not in [
+                'DATE', 'TIME', 'NUMB', 'http', 'https']]
+            pp_chunk = [w for w in pp_chunk if not w.startswith(r"//")]
+
+            pp_chunk_list.append(pp_chunk)
+
+        # After pp2word, Filtering chunk >= 10 words.
+        pp_chunk_list = [c for c in pp_chunk_list if len(c) >= 10]
         return pp_chunk_list
 
     @staticmethod
@@ -98,10 +114,17 @@ class CROnline():
 
     @classmethod
     def query_formulate(cls, chunk_list, top_k=20, lang='en'):
+        # Preprocess chunk list
         pp_chunk_list = cls.preprocess_chunk_list(chunk_list, lang)
-        query1_list = ["+".join(w[:20]) for w in pp_chunk_list]
 
-        top_list = cls.get_top_tf_idf_words(pp_chunk_list, top_k, lang)
+        [print(c) for c in chunk_list]
+        [print(c) for c in pp_chunk_list]
+        # 1st Query
+        # Get first 20 word of each pp chunk
+        query1_list = ["+".join(c[:20]) for c in chunk_list]
+
+        # 2nd Query
+        top_list = cls.get_top_tf_idf_words(pp_chunk_list, top_k)
         query2_list = ["+".join(top) for top in top_list]
 
         return query1_list + query2_list
