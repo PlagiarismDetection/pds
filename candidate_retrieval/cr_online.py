@@ -13,7 +13,7 @@ from pds.pre_processing import EngPreprocessor
 from pds.pre_processing.utils import split_para
 from pds.candidate_retrieval.similarity_metric import SimilarityMetric
 
-S
+
 class CROnline():
     def __init__(self):
         pass    
