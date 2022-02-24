@@ -16,7 +16,7 @@ from pds.candidate_retrieval.similarity_metric import SimilarityMetric
 
 class CROnline():
     def __init__(self):
-        pass    
+        pass
 
     @classmethod
     def chunking(cls, data, lang='en', isPDF=False):
@@ -63,6 +63,7 @@ class CROnline():
 
     @staticmethod
     def preprocess_chunk_list(chunk_list, lang='en'):
+        # Output: [(chunk, ppchunk)] : List of tuple of (chunk and its ppchunk) if ppchunk >= 10 words
         # Preprocessing a chunk to remove stopword and punctuation.
         pp_chunk_list = []
 
@@ -82,10 +83,10 @@ class CROnline():
                 'DATE', 'TIME', 'NUMB', 'http', 'https']]
             pp_chunk = [w for w in pp_chunk if not w.startswith(r"//")]
 
-            pp_chunk_list.append(pp_chunk)
+            pp_chunk_list.append((chunk, pp_chunk))
 
         # After pp2word, Filtering chunk >= 10 words.
-        pp_chunk_list = [c for c in pp_chunk_list if len(c) >= 10]
+        pp_chunk_list = [c for c in pp_chunk_list if len(c[1]) >= 10]
         return pp_chunk_list
 
     @staticmethod
@@ -113,21 +114,19 @@ class CROnline():
         return top_list
 
     @classmethod
-    def query_formulate(cls, chunk_list, top_k=20, lang='en'):
-        # Preprocess chunk list
-        pp_chunk_list = cls.preprocess_chunk_list(chunk_list, lang)
+    def query_formulate(cls, pp_chunk_list, top_k=20, lang='en'):
+        chunks = [c[0] for c in pp_chunk_list]
+        pp_chunks = [c[1] for c in pp_chunk_list]
 
-        [print(c) for c in chunk_list]
-        [print(c) for c in pp_chunk_list]
         # 1st Query
         # Get first 20 word of each pp chunk
-        query1_list = ["+".join(c[:20]) for c in chunk_list]
+        query1_list = ["+".join(c[:20]) for c in pp_chunks]
 
         # 2nd Query
-        top_list = cls.get_top_tf_idf_words(pp_chunk_list, top_k)
+        top_list = cls.get_top_tf_idf_words(pp_chunks, top_k)
         query2_list = ["+".join(top) for top in top_list]
 
-        return query1_list + query2_list
+        return zip(chunks, query1_list, query2_list)
 
     @staticmethod
     def searchBing(query):
@@ -170,10 +169,15 @@ class CROnline():
 
     @classmethod
     def search_control(cls, query_list):
+        # Output: [{input_para: string, candidate_list: [{title: string, content: [source_para: string], url, snippet}]}]
+
         result = []
-        for query in query_list:
-            urls = cls.searchBing(query)
-            result += urls
+        for chunk, query1, query2 in query_list:
+            candidate_list = []
+            candidate_list += cls.searchBing(query1)
+            candidate_list += cls.searchBing(query2)
+
+            result += [{'input_para': chunk, 'candidate_list': candidate_list}]
 
         return result
 
@@ -183,8 +187,9 @@ class CROnline():
             candidate_list = pp_res['candidate_list']
             para_content = pp_res['input_para']
             check_duplicated = CROnline.check_duplicate_url(candidate_list)
-            snippet_based_checking  = CROnline.snippet_based_checking(check_duplicated, para_content, lang='en', threshold=1)
-            pp_res['candidate_list']= snippet_based_checking
+            snippet_based_checking = CROnline.snippet_based_checking(
+                check_duplicated, para_content, lang='en', threshold=1)
+            pp_res['candidate_list'] = snippet_based_checking
         return search_results
 
     @staticmethod
@@ -197,7 +202,6 @@ class CROnline():
         check_duplicated = []
         url_list = []
         title_list = []
-
 
         for search_res in search_results:
             title = search_res['title']
@@ -228,11 +232,9 @@ class CROnline():
                 title_list.append(pp_title)
         return check_duplicated
 
-    
-
     @staticmethod
     def snippet_based_checking(search_results, suspicious_doc_string, lang='en', threshold=1):
-        # Check overlap on 3-grams on suspicious document and candidate document
+        # Check overlap on (n=3)-grams on suspicious document and candidate document
         n = 3
 
         if lang == 'vi':
@@ -270,17 +272,25 @@ class CROnline():
 
     @classmethod
     def combine_all_step(cls, data, lang='en', isPDF=False):
+        # Chunking
         chunk_list = cls.chunking(data, lang, isPDF)
-
         print(f">>> Chunking to {len(chunk_list)} chunks")
+        # Preprocess chunk list
+        pp_chunk_list = cls.preprocess_chunk_list(chunk_list, lang)
+        print(f"\n>>> PP Chunking to {len(pp_chunk_list)} chunks\n")
 
-        query_list = cls.query_formulate(chunk_list, 20, lang)
+        query_list = cls.query_formulate(pp_chunk_list, 20, lang)
         search_res = cls.search_control(query_list)
 
-        print(f">>> Search Online found {len(search_res)} sources" )
+        res_len = [len(r['candidate_list']) for r in search_res]
+        print(
+            f"\n>>> Search Online found: {res_len}, total: {sum(res_len)} sources")
 
         filter = cls.download_filtering_hybrid(search_res, lang)
-        print(f">>> After Filtered found {len(filter)} sources")
-        print(filter)
+
+        filter_len = [len(r['candidate_list']) for r in filter]
+        print(
+            f"\n>>> After Filtered found: {filter_len}, total: {sum(filter_len)} sources")
+        [print(f) for f in filter]
 
         return filter
