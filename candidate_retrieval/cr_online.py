@@ -114,20 +114,31 @@ class CROnline():
                     for feature in features]
         return top_list
 
+    @staticmethod
+    def keyphrase_extract(text_chunks, top_k, lang='en'):
+        kp_extractor = KeyphraseExtract(
+            'english' if lang == 'en' else 'vietnamese')
+
+        kp_list = [kp_extractor.get_keyphrase(
+            text, top_k=top_k) for text in text_chunks]
+        return kp_list
+
     @classmethod
     def query_formulate(cls, pp_chunk_list, top_k=20, lang='en'):
-        chunks = [c[0] for c in pp_chunk_list]
+        text_chunks = [c[0] for c in pp_chunk_list]
         pp_chunks = [c[1] for c in pp_chunk_list]
 
         # 1st Query
         # Get first 20 word of each pp chunk
         query1_list = ["+".join(c[:20]) for c in pp_chunks]
+        [print(q) for q in query1_list]
 
         # 2nd Query
-        top_list = cls.get_top_tf_idf_words(pp_chunks, top_k)
+        top_list = cls.keyphrase_extract(text_chunks, top_k, lang)
         query2_list = ["+".join(top) for top in top_list]
+        [print(q) for q in query2_list]
 
-        return zip(chunks, query1_list, query2_list)
+        return zip(text_chunks, query1_list, query2_list)
 
     @staticmethod
     def searchBing(query):
