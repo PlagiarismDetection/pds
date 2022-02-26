@@ -108,9 +108,10 @@ class ReadOnlSource():
         url = cls.handle_special_url(url)
         try:
             if cls.is_pdf_url(url):
+                print('>>> Read from PDF:', url)
                 content = cls.read_pdf_from_url(url)
             else:
-                print('>>> Read from URL')
+                print('>>> Read from URL:', url)
                 content = cls.read_text_from_url(url)
         except Exception as e:
             print('>>> Cant read url: ', url)

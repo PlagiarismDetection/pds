@@ -1,8 +1,9 @@
+from heapq import merge
 import re
 import pandas as pd
 import numpy as np
 import requests
-import itertools
+from functools import reduce
 from bs4 import BeautifulSoup
 from nltk import ngrams, word_tokenize as eng_tokenizer
 from underthesea import word_tokenize as vie_tokenizer
@@ -186,11 +187,24 @@ class CROnline():
         for pp_res in search_results:
             candidate_list = pp_res['candidate_list']
             para_content = pp_res['input_para']
-            check_duplicated = CROnline.check_duplicate_url(candidate_list)
-            snippet_based_checking = CROnline.snippet_based_checking(
+            check_duplicated = cls.check_duplicate_url(candidate_list)
+            snippet_based_checking = cls.snippet_based_checking(
                 check_duplicated, para_content, lang='en', threshold=1)
             pp_res['candidate_list'] = snippet_based_checking
-        return search_results
+
+        candidate_list= cls.merge_all_result(search_results, lang)
+        return candidate_list
+
+    @classmethod
+    def merge_all_result(cls, search_results, lang):
+        candidate_list = reduce(lambda x, y: x+y['candidate_list'], search_results, [])
+        candidate_list = cls.check_duplicate_url(candidate_list,lang)
+        input_para_list = reduce(lambda x,y: x+[y['input_para']],search_results, [])
+        
+        return {
+            'input_para_list': input_para_list,
+            'candidate_list':candidate_list
+        }
 
     @staticmethod
     def check_duplicate_url(search_results, lang='en'):
@@ -225,8 +239,7 @@ class CROnline():
             # print(title_list)
             # print(sm_title_list)
             max_sm = 0 if len(sm_title_list) == 0 else max(sm_title_list)
-
-            if (url not in url_list) and max_sm <= 0.6:
+            if (url not in url_list) and max_sm <= 0.7:
                 check_duplicated.append(search_res)
                 url_list.append(url)
                 title_list.append(pp_title)
@@ -288,9 +301,9 @@ class CROnline():
 
         filter = cls.download_filtering_hybrid(search_res, lang)
 
-        filter_len = [len(r['candidate_list']) for r in filter]
+        filter_len = len(filter['candidate_list'])
         print(
-            f"\n>>> After Filtered found: {filter_len}, total: {sum(filter_len)} sources")
-        [print(f) for f in filter]
+            f"\n>>> After Filtered found: {filter_len} sources")
+        [print(f) for f in filter['candidate_list']]
 
         return filter
