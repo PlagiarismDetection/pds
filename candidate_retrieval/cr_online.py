@@ -13,6 +13,7 @@ from pds.pre_processing import ViePreprocessor
 from pds.pre_processing import EngPreprocessor
 from pds.pre_processing.utils import split_para
 from pds.candidate_retrieval.similarity_metric import SimilarityMetric
+from pds.candidate_retrieval.keyphrase_extract import KeyphraseExtract
 
 
 class CROnline():
@@ -116,11 +117,19 @@ class CROnline():
 
     @staticmethod
     def keyphrase_extract(text_chunks, top_k, lang='en'):
+        # Extract Keyphrase from list of text chunks
         kp_extractor = KeyphraseExtract(
             'english' if lang == 'en' else 'vietnamese')
-
         kp_list = [kp_extractor.get_keyphrase(
             text, top_k=top_k) for text in text_chunks]
+
+        # Split word in phrase of each kp => List of word only
+        # Cut if kp_list is so long > 30
+        kp_list = [[kp for kps in chunk for kp in kps.split(
+            ' ')][:30] for chunk in kp_list]
+        # print([len(c) for c in kp_list])
+
+        # (Not) Filter all repeated word
         return kp_list
 
     @classmethod
@@ -131,12 +140,12 @@ class CROnline():
         # 1st Query
         # Get first 20 word of each pp chunk
         query1_list = ["+".join(c[:20]) for c in pp_chunks]
-        [print(q) for q in query1_list]
+        # [print(q) for q in query1_list]
 
         # 2nd Query
         top_list = cls.keyphrase_extract(text_chunks, top_k, lang)
         query2_list = ["+".join(top) for top in top_list]
-        [print(q) for q in query2_list]
+        # [print(q) for q in query2_list]
 
         return zip(text_chunks, query1_list, query2_list)
 
@@ -154,7 +163,7 @@ class CROnline():
 
         s = requests.Session()
         url = 'https://www.bing.com/search?q=' + query + \
-            "+filetype%3A&go=Search&qs=ds&form=QBRE"
+            "+arxiv.org&go=Search&qs=ds&form=QBRE"
         print(f">>> Search by Bing URL: {url}")
 
         page = s.get(url, headers=get_header)
