@@ -5,9 +5,8 @@ import numpy as np
 import requests
 from functools import reduce
 from bs4 import BeautifulSoup
-from nltk import ngrams, word_tokenize as eng_tokenizer
-from underthesea import word_tokenize as vie_tokenizer
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from nltk import ngrams
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from pds.pre_processing import ViePreprocessor
 from pds.pre_processing import EngPreprocessor
@@ -263,8 +262,8 @@ class CROnline():
             pp_title = title.lower()
             pp_title = re.sub(
                 r"""[!"#$%&'()*+,\-./:;<=>?@^_`{|}~…“”–—]""", " ", pp_title)
-            pp_title = vie_tokenizer(
-                pp_title) if cls.lang == 'vi' else eng_tokenizer(pp_title)
+            pp_title = ViePreprocessor.tokenize(
+                pp_title) if cls.lang == 'vi' else EngPreprocessor.tokenize(pp_title)
 
             # Compaare title with alls in title_list, using Jaccard_2
             sm_title_list = [SimilarityMetric.n_gram_matching(
