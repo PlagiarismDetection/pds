@@ -23,10 +23,7 @@ class CROnline():
         pass
 
     @classmethod
-    def chunking(cls, data):
-        # Split data text to get important paragraph
-        para_list = split_para(data, isPDF=cls.isPDF)
-
+    def chunking(cls, para_list):
         # If isPDF, Chunking each paragraph to chunk of 1 - 3 sentences.
         # Elif not isPDF, Each sentence is a chunk.
         # Use Preprocessor module to split each paragraph to list of sent.
@@ -57,8 +54,8 @@ class CROnline():
                 # Elif not isPDF, Each sentence is a chunk
                 chunk_list += sent_list
 
-        # Filter for chunk > 100 char, and add to chunklist.
-        chunk_list = [c for c in chunk_list if len(c) > 100]
+        # Filter for chunk > 80 char, and add to chunklist.
+        chunk_list = [c for c in chunk_list if len(c) > 80]
 
         # print(len(chunk_list))
         # print([len(c) for c in chunk_list])
@@ -89,8 +86,10 @@ class CROnline():
 
             pp_chunk_list.append((chunk, pp_chunk))
 
-        # After pp2word, Filtering chunk >= 10 words.
-        pp_chunk_list = [c for c in pp_chunk_list if len(c[1]) >= 10]
+        # After pp2word, Filtering chunk >= 10 words If isPDF, else >=5 is ok
+        pp_chunk_list = [c for c in pp_chunk_list if len(
+            c[1]) >= (10 if cls.isPDF else 5)]
+
         return pp_chunk_list
 
     @classmethod
@@ -325,13 +324,20 @@ class CROnline():
         cls.lang = lang
         cls.isPDF = isPDF
 
+        # Split data text to get important paragraph
+        para_list = split_para(data, isPDF=cls.isPDF)
+
         # Chunking
-        chunk_list = cls.chunking(data)
+        chunk_list = cls.chunking(para_list)
         print(f">>> Chunking to {len(chunk_list)} chunks")
+        # [print(c) for c in chunk_list]
+
         # Preprocess chunk list
         pp_chunk_list = cls.preprocess_chunk_list(chunk_list)
         print(f"\n>>> PP Chunking to {len(pp_chunk_list)} chunks\n")
+        # [print(c) for c in pp_chunk_list]
 
+        # Searching: Query Formulate + Search control
         query_list = cls.query_formulate(pp_chunk_list, 20)
         search_res = cls.search_control(query_list)
 
@@ -339,6 +345,7 @@ class CROnline():
         print(
             f"\n>>> Search Online found: {res_len}, total: {sum(res_len)} sources")
 
+        # Download Filtering
         filter = cls.download_filtering_hybrid(search_res)
 
         filter_len = len(filter['candidate_list'])
