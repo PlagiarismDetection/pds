@@ -27,7 +27,7 @@ class Exhaustive(ABC):
             return (similarity_score, 'near')
         return False
 
-    def exhaustive_analysis(self, candidate_retrieval_result, ngrams=3, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.7, similarity_metric=SimilarityMetric.Jaccard_2()):
+    def offline_exhaustive_analysis(self, candidate_retrieval_result, ngrams=3, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.7, similarity_metric=SimilarityMetric.Jaccard_2()):
         # Only Offline
         # candidate_retrieval_result: [{input_para: string, candidate_list: [{title: string, content: [source_para: string]}]}]
         evidence = []
@@ -47,15 +47,15 @@ class Exhaustive(ABC):
 
             # Input: [sent: string]
             input_embedding = self.model.encode(input_para_pp_sent)
-            # Output: [Vector: [number]]
+            # Output: [Vector]
 
             # Input: [{title: string, content: [source_para: [sent: string]]}]
             source_embedding = list(map(lambda candidate: {'title': candidate['title'], 'content': candidate['content'], 'analysis_content': list(
                 map(lambda para: self.model.encode(para), candidate['analysis_content']))}, candidate_list_pp_sent))
-            # Output: [{title: string, content: [source_para: [Vector: [number]]}]
+            # Output: [{title: string, content: string, analysis_content: [source_para: [Vector]}]
 
             # Step 3: Check if paraphrasing
-            # Input: [Vector: [number]] and [{title: string, content: [source_para: [Vector: [number]]}]
+            # Input: [Vector] and [{title: string, content: string, analysis_content: [source_para: [Vector]}]
             evidence_list = [{'sent': input_para_pp_sent[position_input],
                               'pos': position_input,
                               'evidence': [{'title': candidate['title'],
