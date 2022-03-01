@@ -230,11 +230,8 @@ class CROnline():
         candidate_list = reduce(
             lambda x, y: x+y['candidate_list'], search_results, [])
         candidate_list = cls.check_duplicate_url(candidate_list)
-        input_para_list = reduce(
-            lambda x, y: x+[y['input_para']], search_results, [])
 
         return {
-            'input_para_list': input_para_list,
             'candidate_list': candidate_list
         }
 
@@ -346,11 +343,13 @@ class CROnline():
             f"\n>>> Search Online found: {res_len}, total: {sum(res_len)} sources")
 
         # Download Filtering
+        
+        
         filter = cls.download_filtering_hybrid(search_res)
 
         filter_len = len(filter['candidate_list'])
         print(
             f"\n>>> After Filtered found: {filter_len} sources")
         [print(f) for f in filter['candidate_list']]
-
+        res_len['input_para_list'] = para_list
         return filter
