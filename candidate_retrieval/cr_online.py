@@ -351,5 +351,5 @@ class CROnline():
         print(
             f"\n>>> After Filtered found: {filter_len} sources")
         [print(f) for f in filter['candidate_list']]
-        res_len['input_para_list'] = para_list
+        filter['input_para_list'] = para_list
         return filter
