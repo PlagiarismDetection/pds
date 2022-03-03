@@ -9,7 +9,7 @@ from pds.candidate_retrieval.model.doc2vec import SearchDoc2Vec
 
 
 class CROffline():
-    def __init__(self, lang='eng', isPDF=False):
+    def __init__(self, lang='en', isPDF=False):
         self.lang = lang
         self.isPDF = isPDF   # Text (short) or file (long)
 
