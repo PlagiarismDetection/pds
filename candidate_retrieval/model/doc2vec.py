@@ -29,13 +29,13 @@ class SearchDoc2Vec(ABC):
         print("--- %s seconds ---" % (time.time() - start_time))
 
         # Evaluating model
-        # start_time = time.time()
-        # print("Evaluating model...")
-        # print("Accuracy: ", cls.__evaluate_model(model, train_corpus))
-        # print("--- %s seconds ---" % (time.time() - start_time))
+        start_time = time.time()
+        print("Evaluating model...")
+        print("Accuracy: ", cls.__evaluate_model(model, train_corpus))
+        print("--- %s seconds ---" % (time.time() - start_time))
 
         # Saving model
-        model.save('./checker/model/' + lang + '.d2v')
+        model.save('./pds/candidate_retrieval/model/' + lang + '.d2v')
 
         return model
 
@@ -60,7 +60,8 @@ class SearchDoc2Vec(ABC):
     def get_model(cls, collection, lang):
         # Try load from saved model, else training model
         try:
-            model = Doc2Vec.load('./checker/model/' + lang + '.d2v')
+            model = Doc2Vec.load(
+                './pds/candidate_retrieval/model/' + lang + '.d2v')
         except:
             # Get preprocessed words list for each para for train corpus
             pp_train = [word_para for d in collection for word_para in d['Content-word-para']]
