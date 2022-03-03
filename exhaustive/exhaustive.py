@@ -15,8 +15,8 @@ class Exhaustive(ABC):
         return list(filter(lambda sent: len(sent) != 0, sent_list))
 
     def __string_based(self, input_sent, source_sent, ngrams_num, exact_threshold, near_threshold, similarity_metric):
-        input_grams = self.preprocessor.tokenize(input_sent)
-        source_grams = self.preprocessor.tokenize(source_sent)
+        input_grams = self.preprocessor.pp2word(input_sent)
+        source_grams = self.preprocessor.pp2word(source_sent)
 
         similarity_score = SimilarityMetric.n_gram_matching(
             input_grams, source_grams, ngrams_num, similarity_metric)
