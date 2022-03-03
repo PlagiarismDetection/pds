@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from tika import parser
 import re
+from pds.pre_processing import split_para
 
 class OnlSource():
     def __init__(self, metadata, content):
@@ -109,10 +110,10 @@ class ReadOnlSource():
         try:
             if cls.is_pdf_url(url):
                 print('>>> Read from PDF:', url)
-                content = cls.read_pdf_from_url(url)
+                content = split_para(cls.read_pdf_from_url(url), isPDF=True)
             else:
                 print('>>> Read from URL:', url)
-                content = cls.read_text_from_url(url)
+                content = split_para(cls.read_text_from_url(url), isPDF=False)
         except Exception as e:
             print('>>> Cant read url: ', url)
             print(e)

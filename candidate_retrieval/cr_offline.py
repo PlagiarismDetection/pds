@@ -3,7 +3,7 @@ import numpy as np
 from pds.pre_processing import ViePreprocessor
 from pds.pre_processing import EngPreprocessor
 from pds.pre_processing.utils import remove_puntuation, split_para
-from pds.candidate_retrieval.similarity_metric import SimilarityMetric
+from pds.exhaustive.similarity_metric import SimilarityMetric
 from pds.candidate_retrieval.keyphrase_extract import KeyphraseExtract
 from pds.candidate_retrieval.model.doc2vec import SearchDoc2Vec
 
