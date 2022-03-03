@@ -93,7 +93,7 @@ class SearchDoc2Vec(ABC):
         for vec in inferred_vectors:
             top_sims = model.docvecs.most_similar([vec], topn=5)
             sim_pars = []
-            print(top_sims[0]) 
+            # print(top_sims[0]) 
 
             for tag, sm in top_sims:
                 if sm >= 0.3:
@@ -113,7 +113,7 @@ class SearchDoc2Vec(ABC):
                             'sm': sm
                         })
 
-            print(sim_pars[0]['content'])
+            # print(sim_pars[0]['content'])
             result += [sim_pars]
         
         return result
