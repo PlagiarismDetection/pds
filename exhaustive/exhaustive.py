@@ -1,4 +1,4 @@
-from pds.candidate_retrieval.similarity_metric import SimilarityMetric
+from similarity_metric import SimilarityMetric
 from sentence_transformers.util import cos_sim
 from abc import ABC
 
@@ -94,18 +94,18 @@ class Exhaustive(ABC):
     def online_exhaustive_analysis(self, candidate_retrieval_result, ngrams=3, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         # Step 1: Input sentence preprocessing for candidate source
-        candidate_list=candidate_retrieval_result['candidate_list']
+        candidate_list = candidate_retrieval_result['candidate_list']
         # Source paragraphs pp
-        candidate_list_pp_sent = list(map(lambda candidate: {'title': candidate['title'],'url':candidate['url'], 'content': candidate['content'], 'analysis_content': [
+        candidate_list_pp_sent = list(map(lambda candidate: {'title': candidate['title'], 'url': candidate['url'], 'content': candidate['content'], 'analysis_content': [
             self.__preprocessing(source_para) for source_para in candidate['content']]}, candidate_list))
-        
+
         # Step 2: Encode vector with SBERT mode for candidate source
         # Input: [{title: string, content: [source_para: [sent: string]]}]
-        source_embedding = list(map(lambda candidate: {'title': candidate['title'],'url':candidate['url'], 'content': candidate['content'], 'analysis_content': list(
+        source_embedding = list(map(lambda candidate: {'title': candidate['title'], 'url': candidate['url'], 'content': candidate['content'], 'analysis_content': list(
             map(lambda para: self.model.encode(para), candidate['analysis_content']))}, candidate_list_pp_sent))
-        # Output: [{title: string, content: [source_para: [Vector: [number]]}]    
-        for input_paragraph in candidate_retrieval_result['input_para_list']: 
-            # Step 1: Input sentence preprocessing          
+        # Output: [{title: string, content: [source_para: [Vector: [number]]}]
+        for input_paragraph in candidate_retrieval_result['input_para_list']:
+            # Step 1: Input sentence preprocessing
             # Input paragraph pp
             input_para_pp_sent = self.__preprocessing(input_paragraph)
 
@@ -114,7 +114,7 @@ class Exhaustive(ABC):
             input_embedding = self.model.encode(input_para_pp_sent)
             # Output: [Vector: [number]]
 
-            # Step 3: Check if paraphrasing 
+            # Step 3: Check if paraphrasing
             # HAS THE SAME WITH OFFLINE COMPARITION IN REMAINING STEPS
             # Input: [Vector: [number]] and [{title: string, content: [source_para: [Vector: [number]]}]
             evidence_list = [{'sent': input_para_pp_sent[position_input],
