@@ -1,4 +1,4 @@
-from similarity_metric import SimilarityMetric
+from .similarity_metric import SimilarityMetric
 from sentence_transformers.util import cos_sim
 from abc import ABC
 
