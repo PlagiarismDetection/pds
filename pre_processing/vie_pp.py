@@ -6,7 +6,7 @@ from .utils import *
 from underthesea import word_tokenize, sent_tokenize
 
 # Import the Vietnamese stopwords file, download from: https://github.com/stopwords/vietnamese-stopwords
-f = open('pds/pre_processing/vietnamese-stopwords.txt', encoding="utf8")
+f = open('pds/pre_processing/stopwords/vietnamese-stopwords.txt', encoding="utf8")
 vnm_stopwords = f.read().splitlines()
 f.close()
 

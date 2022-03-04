@@ -4,11 +4,11 @@ from pds.pre_processing import ViePreprocessor, EngPreprocessor
 from pds.exhaustive_analysis.similarity_metric import SimilarityMetric
 
 # Import the Vietnamese stopwords file, download from: https://github.com/stopwords/vietnamese-stopwords
-vn_stopwords = open('pds/pre_processing/vietnamese-stopwords.txt',
+vn_stopwords = open('pds/pre_processing/stopwords/vietnamese-stopwords.txt',
                     encoding="utf8").read().splitlines()
 
 # English stopwords list from SMART (Salton,1971).  Available at ftp://ftp.cs.cornell.edu/pub/smart/english.stop
-en_stopwords = open('pds/pre_processing/english-stopwords.txt',
+en_stopwords = open('pds/pre_processing/stopwords/english-stopwords.txt',
                     encoding="utf8").read().splitlines()
 
 # Get punctuations sring from NLTK
