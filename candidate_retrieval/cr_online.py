@@ -1,4 +1,3 @@
-from heapq import merge
 import re
 import pandas as pd
 import numpy as np
@@ -8,8 +7,7 @@ from bs4 import BeautifulSoup
 from nltk import ngrams
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from pds.pre_processing import ViePreprocessor
-from pds.pre_processing import EngPreprocessor
+from pds.pre_processing import ViePreprocessor, EngPreprocessor
 from pds.pre_processing.utils import split_para
 from pds.exhaustive_analysis.similarity_metric import SimilarityMetric
 from pds.candidate_retrieval.keyphrase_extract import KeyphraseExtract

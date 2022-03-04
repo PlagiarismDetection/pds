@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from tika import parser
 import re
-from pds.pre_processing import split_para
+from pds.pre_processing.utils import split_para
 
 class OnlSource():
     def __init__(self, metadata, content):
