@@ -1,7 +1,7 @@
 import numpy as np
 from rake_nltk import Rake
 
-from pds.exhaustive.similarity_metric import SimilarityMetric
+from pds.exhaustive_analysis.similarity_metric import SimilarityMetric
 from pds.pre_processing import ViePreprocessor
 from pds.pre_processing import EngPreprocessor
 

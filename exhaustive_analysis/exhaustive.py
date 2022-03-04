@@ -1,4 +1,7 @@
-from .similarity_metric import SimilarityMetric
+from pds.pre_processing import EngPreprocessor
+from pds.pre_processing import ViePreprocessor
+from pds.exhaustive_analysis.similarity_metric import SimilarityMetric
+from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from abc import ABC
 
@@ -147,3 +150,15 @@ class Exhaustive(ABC):
 
             evidences.append(evidence_list)
         return evidences
+
+
+class VieExhaustive(Exhaustive):
+    def __init__(self):
+        model = SentenceTransformer('keepitreal/vietnamese-sbert')
+        super().__init__(model, ViePreprocessor)
+
+
+class EngExhaustive(Exhaustive):
+    def __init__(self, model):
+        model = SentenceTransformer('')
+        super().__init__(model, EngPreprocessor)
