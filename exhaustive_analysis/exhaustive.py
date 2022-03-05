@@ -168,6 +168,49 @@ class VieExhaustive(Exhaustive):
 
 
 class EngExhaustive(Exhaustive):
+    """
+        English SBERT model Evaluation
+        
+        Dataset: Machine Translation Metrics Paraphrase Corpus
+        The training set contains 5000 true paraphrase pairs and 5000 false paraphrase pairs; 
+        the test set contains 1500 and 1500 pairs, respectively. The test collection from the 
+        PAN 2010 plagiarism detection competition was used to generate the sentence-level PAN 
+        dataset. PAN 2010 dataset consists of 41,233 text documents from Project Gutenberg in 
+        which 94,202 cases of plagiarism have been inserted. The plagiarism was created either 
+        by using an algorithm or by explicitly asking Turkers to paraphrase passages from the 
+        original text. Only on the human created plagiarism instances were used here.
+
+        To generate the sentence-level PAN dataset, a heuristic alignment algorithm is used to 
+        find corresponding pairs of sentences within a passage pair linked by the plagiarism 
+        relationship. The alignment algorithm utilized only bag-of-words overlap and length 
+        ratios and no MT metrics. For negative evidence, sentences were sampled from the same 
+        document and extracted sentence pairs that have at least 4 content words in common. 
+        Then from both the positive and negative evidence files, training set of 10,000 sentence 
+        pairs and a test set of 3,000 sentence pairs were created through random sampling.
+
+        Link: https://github.com/wasiahmad/paraphrase_identification/tree/master/dataset/mt-metrics-paraphrase-corpus
+
+        Result:
+
+        model = SentenceTransformer("all-mpnet-base-v2")
+        # Threshold: 0.6837999999999578 Accuracy: 0.8617127624125291
+        # Threshold: 0.7007 999999999999F1: 0.8483126110124334
+
+        model = SentenceTransformer('all-distilroberta-v1')
+        # Threshold: 0.6789999999999583 Accuracy: 0.8733755414861712 
+        # Threshold: 0.7001 F1: 0.8554871423397319
+
+        model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        # Threshold: 0.7064999999999553 Accuracy: 0.894701766077974
+        # Threshold: 0.7039999999999995 F1: 0.8915579958819493
+
+        model = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
+        # Threshold: 0.745099999999951 Accuracy: 0.9020326557814062
+        # Threshold: 0.745099999999995 F1: 0.8988608905764583
+
+        ==> We used 'paraphrase-multilingual-MiniLM-L12-v2' model, because its performance is very good and also model size is ok. 
+        To relate with our Vietnamese SBERT model, the threshold is 0.714 is nearest with this English SBERT threshold. 
+    """
     def __init__(self, model):
-        model = SentenceTransformer('')
+        model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
         super().__init__(model, EngPreprocessor)
