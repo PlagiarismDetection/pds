@@ -92,6 +92,7 @@ class Exhaustive(ABC):
                         paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
                     if sm:
                         evidence['method'] = sm[1]
+                        evidence['sm_score'] = sm[0]
 
             # Step 5: Conclusion methods
             for evidence in evidence_list:
