@@ -1,5 +1,5 @@
 from pds.pre_processing import EngPreprocessor, ViePreprocessor
-from pds.exhaustive_analysis.similarity_metric import SimilarityMetric
+from pds.exhaustive_analysis import SimilarityMetric
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from abc import ABC

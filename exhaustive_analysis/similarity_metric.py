@@ -1,6 +1,6 @@
 from collections import defaultdict
 from abc import ABC
-from pds.exhaustive_analysis.n_grams import NGrams
+from pds.exhaustive_analysis import NGrams
 from nltk.corpus import wordnet as wn
 import math
 
