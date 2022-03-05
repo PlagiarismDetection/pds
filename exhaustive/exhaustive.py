@@ -14,12 +14,20 @@ class Exhaustive(ABC):
             para, replace_num=False, lowercase=False)
         return list(filter(lambda sent: len(sent) != 0, sent_list))
 
-    def __string_based(self, input_sent, source_sent, ngrams_num, exact_threshold, near_threshold, similarity_metric):
-        input_grams = self.preprocessor.pp2word(input_sent)
-        source_grams = self.preprocessor.pp2word(source_sent)
+    def __string_based(self, input_sent, source_sent, exact_threshold, near_threshold, similarity_metric):
+        input_tokens = self.preprocessor.pp2word(input_sent)
+        source_tokens = self.preprocessor.pp2word(source_sent)
+
+        min_length = min(len(input_tokens), len(source_tokens))
+        if min_length <= 5:
+            n_gram = 1
+        elif min_length > 5 and min_length <= 20:
+            n_gram = 2
+        else:
+            n_gram = 3
 
         similarity_score = SimilarityMetric.n_gram_matching(
-            input_grams, source_grams, ngrams_num, similarity_metric)
+            input_tokens, source_tokens, n_gram, similarity_metric)
         if similarity_score > exact_threshold:
             return (similarity_score, 'exact')
         elif similarity_score > near_threshold:
@@ -33,7 +41,7 @@ class Exhaustive(ABC):
             return (sm_score, 'paraphrase')
         return (sm_score, None)
 
-    def offline_exhaustive_analysis(self, candidate_retrieval_result, ngrams=3, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.7, similarity_metric=SimilarityMetric.Jaccard_2()):
+    def offline_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.7, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         for para in candidate_retrieval_result:
             # Step 1: Input sentence preprocessing
@@ -79,7 +87,7 @@ class Exhaustive(ABC):
             for paraphrased_evidence in evidence_list:
                 for evidence in paraphrased_evidence['evidence']:
                     sm = self.__string_based(
-                        paraphrased_evidence['sent'], evidence['sent_source'], ngrams, exact_threshold, near_threshold, similarity_metric)
+                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
                     if sm:
                         evidence['method'] = sm[1]
 
@@ -91,7 +99,7 @@ class Exhaustive(ABC):
             evidences.append(evidence_list)
         return evidences
 
-    def online_exhaustive_analysis(self, candidate_retrieval_result, ngrams=3, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
+    def online_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         # Step 1: Input sentence preprocessing for candidate source
         candidate_list = candidate_retrieval_result['candidate_list']
@@ -136,7 +144,7 @@ class Exhaustive(ABC):
             for paraphrased_evidence in evidence_list:
                 for evidence in paraphrased_evidence['evidence']:
                     sm = self.__string_based(
-                        paraphrased_evidence['sent'], evidence['sent_source'], ngrams, exact_threshold, near_threshold, similarity_metric)
+                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
                     if sm:
                         evidence['method'] = sm[1]
 
