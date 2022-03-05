@@ -1,7 +1,7 @@
 from rake_nltk import Rake
 
 from pds.pre_processing import ViePreprocessor, EngPreprocessor
-from pds.exhaustive_analysis.similarity_metric import SimilarityMetric
+from pds.exhaustive_analysis import SimilarityMetric
 
 # Import the Vietnamese stopwords file, download from: https://github.com/stopwords/vietnamese-stopwords
 vn_stopwords = open('pds/pre_processing/stopwords/vietnamese-stopwords.txt',
