@@ -10,7 +10,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from pds.pre_processing import ViePreprocessor, EngPreprocessor
 from pds.pre_processing.utils import split_para
 from pds.exhaustive_analysis import SimilarityMetric
-from pds.candidate_retrieval.keyphrase_extract import KeyphraseExtract
+from .keyphrase_extract import KeyphraseExtract
 
 
 class CROnline():

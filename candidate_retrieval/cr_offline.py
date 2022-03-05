@@ -1,6 +1,6 @@
 from pds.pre_processing import ViePreprocessor, EngPreprocessor
 from pds.pre_processing.utils import remove_puntuation, split_para
-from pds.candidate_retrieval.doc2vec import SearchDoc2Vec
+from .doc2vec import SearchDoc2Vec
 
 
 class CROffline():
