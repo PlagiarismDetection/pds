@@ -17,8 +17,8 @@ class Exhaustive(ABC):
         return list(filter(lambda sent: len(sent) != 0, sent_list))
 
     def __string_based(self, input_sent, source_sent, exact_threshold, near_threshold, similarity_metric):
-        input_tokens = self.preprocessor.pp2word(input_sent)
-        source_tokens = self.preprocessor.pp2word(source_sent)
+        input_tokens = self.preprocessor.tokenize(input_sent)
+        source_tokens = self.preprocessor.tokenize(source_sent)
 
         min_length = min(len(input_tokens), len(source_tokens))
         if min_length <= 5:
