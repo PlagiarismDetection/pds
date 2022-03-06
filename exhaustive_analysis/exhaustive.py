@@ -211,6 +211,6 @@ class EngExhaustive(Exhaustive):
         ==> We used 'paraphrase-multilingual-MiniLM-L12-v2' model, because its performance is very good and also model size is ok. 
         To relate with our Vietnamese SBERT model, the threshold is 0.714 is nearest with this English SBERT threshold. 
     """
-    def __init__(self, model):
+    def __init__(self):
         model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
         super().__init__(model, EngPreprocessor)
