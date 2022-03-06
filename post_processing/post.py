@@ -12,10 +12,9 @@ class PostProcessing(ABC):
     @staticmethod
     def __filter_evidence_source(evidences):
         # get list title of candidate sources
-        flat = [x for y in evidences for x in y]
-        list_title = list(functools.reduce(lambda ini,sent_evi: ini+[evi['title'] for evi in sent_evi['evidence']],flat,[]))
-        # remove duplicates
-        list_title = list(dict.fromkeys(list_title))
+        flat = [x for para in analysis_result1 for sen in para for x in sen['evidence']]
+        source_list = {item['title']:item['url'] for item in flat}
+        list_title = source_list.keys()
    
         evidence_source = []
         for title in list_title:
@@ -27,6 +26,7 @@ class PostProcessing(ABC):
                     list_evidence = list(filter(lambda evi: evi['title'] == title, sent_evi['evidence']))
                     sent_evi_title.append({
                         'evidence': list_evidence,
+                        'url': source_list[title],
                         'pos': sent_evi['pos'],
                         'sent': sent_evi['sent']
                     })
@@ -87,7 +87,7 @@ class PostProcessing(ABC):
                 'near_score': near_score,
                 'paraphrase_score': paraphrase_score,
                 'evidence_source':evidence_source,
-                'optional':{}
+                'optional': {} 
             },
             'sent_details':evidences
         }

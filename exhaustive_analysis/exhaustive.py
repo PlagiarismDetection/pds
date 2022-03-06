@@ -73,6 +73,7 @@ class Exhaustive(ABC):
             evidence_list = [{'sent': input_para_pp_sent[position_input],
                               'pos': position_input,
                               'evidence': [{'title': candidate['title'],
+                                            'url':None,
                                             'sent_source': candidate_list_pp_sent[position_candidate]['analysis_content'][position_para][position_source],
                                             'sent_source_pos': position_source,
                                             'para_pos': position_para,
@@ -89,7 +90,7 @@ class Exhaustive(ABC):
             for paraphrased_evidence in evidence_list:
                 for evidence in paraphrased_evidence['evidence']:
                     sm = self.__string_based(
-                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
+                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric) 
                     if sm:
                         evidence['method'] = sm[1]
                         evidence['sm_score'] = sm[0]
@@ -131,6 +132,7 @@ class Exhaustive(ABC):
             evidence_list = [{'sent': input_para_pp_sent[position_input],
                               'pos': position_input,
                               'evidence': [{'title': candidate['title'],
+                                            'url': candidate['url'],
                                             'sent_source': candidate_list_pp_sent[position_candidate]['analysis_content'][position_para][position_source],
                                             'sent_source_pos': position_source,
                                             'para_pos': position_para,
@@ -145,7 +147,12 @@ class Exhaustive(ABC):
 
             # Step 4: Check if near/exact copy
             for paraphrased_evidence in evidence_list:
+                # Compare only strings has more than 2 words
+                if len(paraphrased_evidence['sent'].split()) < 2:
+                    continue
                 for evidence in paraphrased_evidence['evidence']:
+                    if len(evidence['sent_source'].split()) < 2:
+                        continue
                     sm = self.__string_based(
                         paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
                     if sm:
