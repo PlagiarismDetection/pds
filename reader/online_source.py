@@ -130,7 +130,7 @@ class ReadOnlSource():
                 can['content'] = content
                 onlList.append(can)
         searchlist_pp['candidate_list'] = onlList
-        return onlList
+        return searchlist_pp
 
     @classmethod
     def getOnlList_Doc(cls, search_result):
