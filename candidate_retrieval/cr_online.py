@@ -217,7 +217,7 @@ class CROnline():
             para_content = pp_res['input_para']
             check_duplicated = cls.check_duplicate_url(candidate_list)
             snippet_based_checking = cls.snippet_based_checking(
-                check_duplicated, para_content, threshold=1)
+                check_duplicated, para_content, threshold= cls.threshold_snippet_checking)
             pp_res['candidate_list'] = snippet_based_checking
 
         candidate_list = cls.merge_all_result(search_results)
@@ -314,10 +314,11 @@ class CROnline():
         return check_snippet_based
 
     @classmethod
-    def combine_all_step(cls, data, lang='en', isPDF=False):
+    def combine_all_step(cls, data, lang='en', isPDF=False, threshold_snippet_checking = 1):
         # Set Language
         cls.lang = lang
         cls.isPDF = isPDF
+        cls.threshold_snippet_checking = threshold_snippet_checking
 
         # Split data text to get important paragraph
         para_list = split_para(data, isPDF=cls.isPDF)

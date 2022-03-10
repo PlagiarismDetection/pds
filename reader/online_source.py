@@ -130,6 +130,7 @@ class ReadOnlSource():
                 can['content'] = content
                 onlList.append(can)
         searchlist_pp['candidate_list'] = onlList
+        print('Read ',len(searchlist_pp['candidate_list']), 'valid sources')
         return searchlist_pp
 
     @classmethod
