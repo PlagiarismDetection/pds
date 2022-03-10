@@ -14,7 +14,7 @@ class Exhaustive(ABC):
     def __preprocessing(self, para):
         sent_list = self.preprocessor.pp2sent(
             para, replace_num=False, lowercase=False)
-        return list(filter(lambda sent: len(sent) != 0, sent_list))
+        return list(filter(lambda sent: len(sent.split()) > 2, sent_list))
 
     def __string_based(self, input_sent, source_sent, exact_threshold, near_threshold, similarity_metric):
         input_tokens = self.preprocessor.tokenize(input_sent)
@@ -148,11 +148,7 @@ class Exhaustive(ABC):
             # Step 4: Check if near/exact copy
             for paraphrased_evidence in evidence_list:
                 # Compare only strings has more than 2 words
-                if len(paraphrased_evidence['sent'].split()) < 2:
-                    continue
                 for evidence in paraphrased_evidence['evidence']:
-                    if len(evidence['sent_source'].split()) < 2:
-                        continue
                     sm = self.__string_based(
                         paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
                     if sm:
