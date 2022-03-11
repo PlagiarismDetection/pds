@@ -304,7 +304,6 @@ con dạ
 con nhà
 con tính
 cu cậu
-cuối
 cuối cùng
 cuối điểm
 cuốn
@@ -410,7 +409,6 @@ cả ăn
 cả đến
 cảm thấy
 cảm ơn
-cấp
 cấp số
 cấp trực tiếp
 cần
@@ -491,9 +489,6 @@ dữ
 dữ cách
 em
 em em
-giá trị
-giá trị thực tế
-giảm
 giảm chính
 giảm thấp
 giảm thế
@@ -501,7 +496,6 @@ giống
 giống người
 giống nhau
 giống như
-giờ
 giờ lâu
 giờ này
 giờ đi
@@ -520,7 +514,6 @@ gây thêm
 gì
 gì gì
 gì đó
-gần
 gần bên
 gần hết
 gần ngày
@@ -582,7 +575,6 @@ khi nên
 khi trước
 khiến
 khoảng
-khoảng cách
 khoảng không
 khá
 khá tốt
@@ -642,8 +634,6 @@ kể cả
 kể như
 kể tới
 kể từ
-liên quan
-loại
 loại từ
 luôn
 luôn cả
@@ -754,7 +744,6 @@ lần sau
 lần theo
 lần trước
 lần tìm
-lớn
 lớn lên
 lớn nhỏ
 lời
@@ -792,7 +781,6 @@ mỗi lần
 mỗi một
 mỗi ngày
 mỗi người
-một
 một cách
 một cơn
 một khi
@@ -853,8 +841,6 @@ ngoài này
 ngoài ra
 ngoài xa
 ngoải
-nguồn
-ngày
 ngày càng
 ngày cấp
 ngày giờ
@@ -869,13 +855,11 @@ ngày xưa
 ngày xửa
 ngày đến
 ngày ấy
-ngôi
 ngôi nhà
 ngôi thứ
 ngõ hầu
 ngăn ngắt
 ngươi
-người
 người hỏi
 người khác
 người khách
@@ -883,7 +867,6 @@ người mình
 người nghe
 người người
 người nhận
-ngọn
 ngọn nguồn
 ngọt
 ngồi
@@ -892,7 +875,6 @@ ngồi không
 ngồi sau
 ngồi trệt
 ngộ nhỡ
-nhanh
 nhanh lên
 nhanh tay
 nhau
@@ -941,7 +923,6 @@ như ý
 nhưng
 nhưng mà
 nhược bằng
-nhất
 nhất loạt
 nhất luật
 nhất là
@@ -970,7 +951,6 @@ nhằm lúc
 nhằm vào
 nhằm để
 nhỉ
-nhỏ
 nhỏ người
 nhớ
 nhớ bập bõm
@@ -1030,7 +1010,6 @@ nói xa
 nói ý
 nói đến
 nói đủ
-năm
 năm tháng
 nơi
 nơi nơi
@@ -1180,7 +1159,6 @@ rén
 rén bước
 rích
 rón rén
-rõ
 rõ là
 rõ thật
 rút cục
@@ -1228,7 +1206,6 @@ so với
 song le
 suýt
 suýt nữa
-sáng
 sáng ngày
 sáng rõ
 sáng thế
@@ -1250,7 +1227,6 @@ số người
 số phần
 số thiếu
 sốt sột
-sớm
 sớm ngày
 sở dĩ
 sử dụng
@@ -1258,7 +1234,6 @@ sự
 sự thế
 sự việc
 ta
-tanh
 tanh tanh
 tay
 tay quay
@@ -1273,15 +1248,12 @@ thanh không
 thanh thanh
 thanh tính
 thanh điều kiện
-thanh điểm
-thay đổi
 thay đổi tình trạng
 theo
 theo bước
 theo như
 theo tin
 thi thoảng
-thiếu
 thiếu gì
 thiếu điểm
 thoạt
@@ -1301,7 +1273,6 @@ thà rằng
 thành ra
 thành thử
 thái quá
-tháng
 tháng ngày
 tháng năm
 tháng tháng
