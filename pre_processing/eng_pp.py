@@ -18,8 +18,13 @@ class EngPreprocessor():
     def pp2sent(cls, input, replace_num=True, lowercase=True):
         text = input
         
-        if replace_num:
-            text = cls.replace_number(text)
+        if replace_num == None:
+            # Remove number
+            text = cls.replace_number(text, remove=True)
+        elif replace_num:
+            # Replace numb
+            text = cls.replace_number(text, remove=False)
+            
         if lowercase:
             text = cls.lowercase(text)
         
@@ -31,8 +36,13 @@ class EngPreprocessor():
     def pp2word(cls, input, replace_num=True, lowercase=True, stem=False, lemmatize=False):
         text = input
 
-        if replace_num:
-            text = cls.replace_number(text)
+        if replace_num == None:
+            # Remove number
+            text = cls.replace_number(text, remove=True)
+        elif replace_num:
+            # Replace numb
+            text = cls.replace_number(text, remove=False)
+
         if lowercase:
             text = cls.lowercase(text)
 
