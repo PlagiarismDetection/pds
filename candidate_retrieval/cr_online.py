@@ -71,10 +71,10 @@ class CROnline():
             pp_chunk = []
             if cls.lang == 'en':
                 pp_chunk = EngPreprocessor.pp2word(
-                    chunk, replace_num=True, lowercase=True)
+                    chunk, replace_num=None, lowercase=False)
             else:
                 pp_chunk = ViePreprocessor.pp2word(
-                    chunk, replace_num=True, lowercase=True)
+                    chunk, replace_num=None, lowercase=False)
 
             # Filtering word >= 4 and not contain special words.
             pp_chunk = [w for w in pp_chunk if len(w) >= 4]
