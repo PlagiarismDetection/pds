@@ -32,9 +32,11 @@ class CROnline():
         for par in para_list:
             # Use Preprocessing to sent to split each paragraph to list of sent.
             if cls.lang == 'en':
-                sent_list = EngPreprocessor.pp2sent(par)
+                sent_list = EngPreprocessor.pp2sent(
+                    par, replace_num=None, lowercase=False)
             else:
-                sent_list = ViePreprocessor.pp2sent(par)
+                sent_list = ViePreprocessor.pp2sent(
+                    par, replace_num=None, lowercase=False)
 
             if cls.isPDF:
                 # Chunking each paragraph to many chunks of 3 sentences.
@@ -217,7 +219,7 @@ class CROnline():
             para_content = pp_res['input_para']
             check_duplicated = cls.check_duplicate_url(candidate_list)
             snippet_based_checking = cls.snippet_based_checking(
-                check_duplicated, para_content, threshold= cls.threshold_snippet_checking)
+                check_duplicated, para_content, threshold=cls.threshold_snippet_checking)
             pp_res['candidate_list'] = snippet_based_checking
 
         candidate_list = cls.merge_all_result(search_results)
@@ -314,7 +316,7 @@ class CROnline():
         return check_snippet_based
 
     @classmethod
-    def combine_all_step(cls, data, lang='en', isPDF=False, threshold_snippet_checking = 1):
+    def combine_all_step(cls, data, lang='en', isPDF=False, threshold_snippet_checking=1):
         # Set Language
         cls.lang = lang
         cls.isPDF = isPDF
