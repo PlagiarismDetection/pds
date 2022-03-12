@@ -127,20 +127,20 @@ class CROnline():
         # Split word in phrase of each kp => List of word only
         # Cut if kp_list is so long > 30
         kp_list = [[kp for kps in chunk for kp in kps.split(
-            ' ')][:top_k] for chunk in kp_list]
+            ' ')][:30] for chunk in kp_list]
         # print([len(c) for c in kp_list])
 
         # (Not) Filter all repeated word
         return kp_list
 
     @classmethod
-    def query_formulate(cls, pp_chunk_list, top_k=20):
+    def query_formulate(cls, pp_chunk_list, top_k):
         text_chunks = [c[0] for c in pp_chunk_list]
         pp_chunks = [c[1] for c in pp_chunk_list]
 
         # 1st Query
         # Get first 20 word of each pp chunk
-        query1_list = ["+".join(c[:20]) for c in pp_chunks]
+        query1_list = ["+".join(c[:top_k]) for c in pp_chunks]
         # [print(q) for q in query1_list]
 
         # 2nd Query
@@ -316,7 +316,7 @@ class CROnline():
         return check_snippet_based
 
     @classmethod
-    def combine_all_step(cls, data, lang='en', isPDF=False, threshold_snippet_checking=1):
+    def combine_all_step(cls, data, lang='en', isPDF=False, top_k=20, threshold_snippet_checking=1):
         # Set Language
         cls.lang = lang
         cls.isPDF = isPDF
@@ -336,7 +336,7 @@ class CROnline():
         # [print(c) for c in pp_chunk_list]
 
         # Searching: Query Formulate + Search control
-        query_list = cls.query_formulate(pp_chunk_list, 20)
+        query_list = cls.query_formulate(pp_chunk_list, top_k)
         search_res = cls.search_control(query_list)
 
         res_len = [len(r['candidate_list']) for r in search_res]
