@@ -35,14 +35,12 @@ biết đâu
 biết đâu chừng
 biết đâu đấy
 biết được
-buổi
 buổi làm
 buổi mới
 buổi ngày
 buổi sớm
 bà
 bà ấy
-bài
 bài bác
 bài bỏ
 bài cái
@@ -154,7 +152,6 @@ bởi vì
 bởi vậy
 bởi đâu
 bức
-cao
 cao lâu
 cao ráo
 cao răng
@@ -190,7 +187,6 @@ cho đến nỗi
 choa
 chu cha
 chui cha
-chung
 chung cho
 chung chung
 chung cuộc
@@ -251,6 +247,7 @@ chắc lòng
 chắc người
 chắc vào
 chắc ăn
+chẳng hạn
 chẳng lẽ
 chẳng những
 chẳng nữa
@@ -314,7 +311,6 @@ càng hay
 cá nhân
 các
 các cậu
-cách
 cách bức
 cách không
 cách nhau
@@ -326,7 +322,6 @@ cái đã
 cái đó
 cái ấy
 câu hỏi
-cây
 cây nước
 còn
 còn như
@@ -386,7 +381,6 @@ cũng thế
 cũng vậy
 cũng vậy thôi
 cũng được
-cơ
 cơ chỉ
 cơ chừng
 cơ cùng
@@ -409,7 +403,6 @@ cả ăn
 cả đến
 cảm thấy
 cảm ơn
-cấp số
 cấp trực tiếp
 cần
 cần cấp
@@ -489,6 +482,9 @@ dữ
 dữ cách
 em
 em em
+giả sử
+giả dụ
+giả như
 giảm chính
 giảm thấp
 giảm thế
@@ -550,6 +546,7 @@ hơn hết
 hơn là
 hơn nữa
 hơn trước
+hơn thế
 hầu hết
 hết
 hết chuyện
@@ -566,7 +563,6 @@ hỏi
 hỏi lại
 hỏi xem
 hỏi xin
-hỗ trợ
 khi
 khi khác
 khi không
@@ -700,10 +696,7 @@ lúc đó
 lúc đến
 lúc ấy
 lý do
-lượng
 lượng cả
-lượng số
-lượng từ
 lại
 lại bộ
 lại cái
@@ -746,9 +739,6 @@ lần trước
 lần tìm
 lớn lên
 lớn nhỏ
-lời
-lời chú
-lời nói
 mang
 mang lại
 mang mang
@@ -762,8 +752,6 @@ mà lại
 mà thôi
 mà vẫn
 mình
-mạnh
-mất
 mất còn
 mọi
 mọi giờ
@@ -781,6 +769,7 @@ mỗi lần
 mỗi một
 mỗi ngày
 mỗi người
+một
 một cách
 một cơn
 một khi
@@ -788,7 +777,6 @@ một lúc
 một số
 một vài
 một ít
-mới
 mới hay
 mới rồi
 mới đây
@@ -811,7 +799,6 @@ ngay thật
 ngay tức khắc
 ngay tức thì
 ngay từ
-nghe
 nghe chừng
 nghe hiểu
 nghe không
@@ -868,7 +855,6 @@ người nghe
 người người
 người nhận
 ngọn nguồn
-ngọt
 ngồi
 ngồi bệt
 ngồi không
@@ -883,7 +869,6 @@ nhiều
 nhiều ít
 nhiệt liệt
 nhung nhăng
-nhà
 nhà chung
 nhà khó
 nhà làm
@@ -1147,7 +1132,6 @@ ra điều
 ra đây
 ren rén
 riu ríu
-riêng
 riêng từng
 riệt
 rày
@@ -1229,7 +1213,6 @@ số thiếu
 sốt sột
 sớm ngày
 sở dĩ
-sử dụng
 sự
 sự thế
 sự việc
@@ -1243,12 +1226,9 @@ tha hồ ăn
 than ôi
 thanh
 thanh ba
-thanh chuyển
 thanh không
 thanh thanh
 thanh tính
-thanh điều kiện
-thay đổi tình trạng
 theo
 theo bước
 theo như
@@ -1425,7 +1405,6 @@ trỏng
 trời đất ơi
 trở thành
 trừ phi
-trực tiếp
 trực tiếp làm
 tuy
 tuy có
@@ -1595,6 +1574,7 @@ vì thế
 vì vậy
 ví bằng
 ví dù
+ví dụ
 ví phỏng
 ví thử
 vô hình trung
@@ -1675,7 +1655,6 @@ xăm xắm
 xảy ra
 xềnh xệch
 xệp
-xử lý
 yêu cầu
 à
 à này
