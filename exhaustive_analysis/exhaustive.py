@@ -45,16 +45,33 @@ class Exhaustive(ABC):
 
     def offline_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.7, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
+        input_handled = []
+        summary_content_each_title = []
+
         for para in candidate_retrieval_result:
             # Step 1: Input sentence preprocessing
             # Input paragraph pp
             input_paragraph = para['input_para']
             input_para_pp_sent = self.__preprocessing(input_paragraph)
+            input_handled.append(input_para_pp_sent)
 
             # Source paragraphs pp
             candidate_list = para['candidate_list']
             candidate_list_pp_sent = list(map(lambda candidate: {'title': candidate['title'], 'content': candidate['content'], 'analysis_content': [
                 self.__preprocessing(source_para) for source_para in candidate['content']]}, candidate_list))
+            
+            for can in candidate_list_pp_sent:
+                for source in summary_content_each_title:
+                    if can['title'] == source['title']:
+                        source['analysis_content'].append(can['analysis_content'])
+                        source['content'].append(can['content'])
+                        break
+                # If not found
+                summary_content_each_title.append({
+                    'title': can['title'],
+                    'content': [can['content']],
+                    'analysis_content': [can['analysis_content']]
+                })
 
             # Step 2: Encode vector with SBERT mode
             # Loading model
@@ -101,10 +118,15 @@ class Exhaustive(ABC):
                     filter(lambda evi: evi['method'] != None, evidence['evidence']))
 
             evidences.append(evidence_list)
-        return evidences
+        return {
+            'evidences':evidences,
+            'candidate_list': summary_content_each_title,
+            'input_handled': input_handled 
+        }
 
     def online_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
+        input_handled = []
         # Step 1: Input sentence preprocessing for candidate source
         candidate_list = candidate_retrieval_result['candidate_list']
         # Source paragraphs pp
@@ -120,14 +142,14 @@ class Exhaustive(ABC):
             # Step 1: Input sentence preprocessing
             # Input paragraph pp
             input_para_pp_sent = self.__preprocessing(input_paragraph)
-
+            input_handled.append(input_para_pp_sent)
             # Step 2: Encode vector with SBERT mode
             # Input: [sent: string]
             input_embedding = self.model.encode(input_para_pp_sent)
             # Output: [Vector: [number]]
 
             # Step 3: Check if paraphrasing
-            # HAS THE SAME WITH OFFLINE COMPARITION IN REMAINING STEPS
+            # HAS THE SAME WITH OFFLINE COMPARISON IN REMAINING STEPS
             # Input: [Vector: [number]] and [{title: string, content: [source_para: [Vector: [number]]}]
             evidence_list = [{'sent': input_para_pp_sent[position_input],
                               'pos': position_input,
@@ -161,7 +183,12 @@ class Exhaustive(ABC):
                     filter(lambda evi: evi['method'] != None, evidence['evidence']))
 
             evidences.append(evidence_list)
-        return evidences
+        return {
+            'evidences':evidences,
+            'candidate_list': candidate_list_pp_sent,
+            'input_handled': input_handled 
+        }
+
 
 
 class VieExhaustive(Exhaustive):
