@@ -18,7 +18,7 @@ class SimilarityMetric(ABC):
 
     @staticmethod
     def __n_gram_matching_SM_with_Jaccard_variant_2(input_grams, source_grams):
-        lst = [value for value in input_grams if value in source_grams]
+        lst =  list(set(input_grams).intersection(source_grams))
         return len(lst)/min(len(input_grams), len(source_grams))
 
     @staticmethod

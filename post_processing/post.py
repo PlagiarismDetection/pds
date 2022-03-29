@@ -11,7 +11,7 @@ class PostProcessing(ABC):
         return list(map(lambda para_evidence: list(filter(lambda sent_evidence: sent_evidence['evidence'] != [], para_evidence)), evidences))
 
     @staticmethod
-    def __filter_evidence_source(evidences, total_word):
+    def __filter_evidence_source(evidences, content_sources, total_word):
         # get list title of candidate sources
         flat = [x for para in evidences for sen in para for x in sen['evidence']]
         source_list = {item['title']: item['url'] for item in flat}
@@ -24,11 +24,11 @@ class PostProcessing(ABC):
             for para in evidences:
                 sent_evi_title = []
                 for sent_evi in para:
+                    # filter evident for each title
                     list_evidence = list(
                         filter(lambda evi: evi['title'] == title, sent_evi['evidence']))
                     sent_evi_title.append({
                         'evidence': list_evidence,
-                        'url': source_list[title],
                         'pos': sent_evi['pos'],
                         'sent': sent_evi['sent']
                     })
@@ -40,12 +40,20 @@ class PostProcessing(ABC):
             evidence_source.append({
                 'title': title,
                 'sim_score': numword_sim_source/total_word,
-                'sent_details': sent_details
+                'sent_details': sent_details,
+                'url':source_list[title],
+                'content_split': [source['analysis_content'] for source in content_sources if source['title']==title][0]
             })
         return evidence_source
 
     @classmethod
     def post_preprocessing(cls, evidences):
+        # INPUT
+        # {
+        #     'evidences':evidences,
+        #     'candidate_list': candidate_list_pp_sent,
+        #     'input_handled': input_handled 
+        # }
         # OUTPUT
         # {'summary': {
         #      'sim_score': float,
@@ -69,7 +77,7 @@ class PostProcessing(ABC):
         # }
 
         # # Step 1: remove sentence with empty evidences out of evidences list
-        filtered_evidences = cls.__post_filter(evidences)
+        filtered_evidences = cls.__post_filter(evidences['evidences'])
 
         # Initialize paramater
         numword_sim = 0
@@ -80,7 +88,7 @@ class PostProcessing(ABC):
             'paraphrase': 0,
         }
 
-        for para in evidences:
+        for para in evidences['evidences']:
             for sent_evi in para:
                 total_word += len(sent_evi['sent'].split())
                 # check if has any plagiarism for each sentence in document
@@ -111,7 +119,7 @@ class PostProcessing(ABC):
         near_score = numword_method['near']/total_word
 
         # Filter the evidence for each source and cal sim_score
-        evidence_source = cls.__filter_evidence_source(filtered_evidences, total_word)
+        evidence_source = cls.__filter_evidence_source(filtered_evidences, evidences['candidate_list'], total_word)
 
         # Output
         postprocess_result = {
@@ -123,6 +131,7 @@ class PostProcessing(ABC):
                 'evidence_source': evidence_source,
                 'optional': {}
             },
-            'sent_details': filtered_evidences
+            'sent_details': filtered_evidences,
+            'input_handled':evidences['input_handled']
         }
         return postprocess_result
