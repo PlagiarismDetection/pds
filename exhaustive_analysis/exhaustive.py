@@ -190,13 +190,13 @@ class Exhaustive(ABC):
             'input_handled': input_handled 
         }
 
-    def text_compare_analysis(self, input_content, source_content, isPDF, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
+    def text_compare_analysis(self, input_content, source_content, is_inputPDF, is_sourcePDF, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         # Step 1: Input split docs to paragraph
         # input split para
-        input_split_para = split_para(input_content, isPDF)
+        input_split_para = split_para(input_content, is_inputPDF)
         # source split para
-        source_split_para = split_para(source_content, isPDF)
+        source_split_para = split_para(source_content, is_sourcePDF)
         
         # Step 2: Sentence pre_processing
         # input sentence pp
