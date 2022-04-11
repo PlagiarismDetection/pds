@@ -3,6 +3,7 @@ from .similarity_metric import SimilarityMetric
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from abc import ABC
+from pds.pre_processing.utils import split_para
 
 
 class Exhaustive(ABC):
@@ -45,16 +46,33 @@ class Exhaustive(ABC):
 
     def offline_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.7, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
+        input_handled = []
+        summary_content_each_title = []
+
         for para in candidate_retrieval_result:
             # Step 1: Input sentence preprocessing
             # Input paragraph pp
             input_paragraph = para['input_para']
             input_para_pp_sent = self.__preprocessing(input_paragraph)
+            input_handled.append(input_para_pp_sent)
 
             # Source paragraphs pp
             candidate_list = para['candidate_list']
             candidate_list_pp_sent = list(map(lambda candidate: {'title': candidate['title'], 'content': candidate['content'], 'analysis_content': [
                 self.__preprocessing(source_para) for source_para in candidate['content']]}, candidate_list))
+            
+            for can in candidate_list_pp_sent:
+                for source in summary_content_each_title:
+                    if can['title'] == source['title']:
+                        source['analysis_content'].append(can['analysis_content'])
+                        source['content'].append(can['content'])
+                        break
+                # If not found
+                summary_content_each_title.append({
+                    'title': can['title'],
+                    'content': [can['content']],
+                    'analysis_content': [can['analysis_content']]
+                })
 
             # Step 2: Encode vector with SBERT mode
             # Loading model
@@ -101,10 +119,15 @@ class Exhaustive(ABC):
                     filter(lambda evi: evi['method'] != None, evidence['evidence']))
 
             evidences.append(evidence_list)
-        return evidences
+        return {
+            'evidences':evidences,
+            'candidate_list': summary_content_each_title,
+            'input_handled': input_handled 
+        }
 
     def online_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
+        input_handled = []
         # Step 1: Input sentence preprocessing for candidate source
         candidate_list = candidate_retrieval_result['candidate_list']
         # Source paragraphs pp
@@ -120,14 +143,14 @@ class Exhaustive(ABC):
             # Step 1: Input sentence preprocessing
             # Input paragraph pp
             input_para_pp_sent = self.__preprocessing(input_paragraph)
-
+            input_handled.append(input_para_pp_sent)
             # Step 2: Encode vector with SBERT mode
             # Input: [sent: string]
             input_embedding = self.model.encode(input_para_pp_sent)
             # Output: [Vector: [number]]
 
             # Step 3: Check if paraphrasing
-            # HAS THE SAME WITH OFFLINE COMPARITION IN REMAINING STEPS
+            # HAS THE SAME WITH OFFLINE COMPARISON IN REMAINING STEPS
             # Input: [Vector: [number]] and [{title: string, content: [source_para: [Vector: [number]]}]
             evidence_list = [{'sent': input_para_pp_sent[position_input],
                               'pos': position_input,
@@ -161,8 +184,71 @@ class Exhaustive(ABC):
                     filter(lambda evi: evi['method'] != None, evidence['evidence']))
 
             evidences.append(evidence_list)
-        return evidences
+        return {
+            'evidences':evidences,
+            'candidate_list': candidate_list_pp_sent,
+            'input_handled': input_handled 
+        }
 
+    def text_compare_analysis(self, input_content, source_content, is_inputPDF, is_sourcePDF, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
+        evidences = []
+        # Step 1: Input split docs to paragraph
+        # input split para
+        input_split_para = split_para(input_content, is_inputPDF)
+        # source split para
+        source_split_para = split_para(source_content, is_sourcePDF)
+        
+        # Step 2: Sentence pre_processing
+        # input sentence pp
+        input_sent_pp = list(map(lambda para: self.__preprocessing(para), input_split_para))
+        # source sentence pp
+        source_sent_pp = list(map(lambda para: self.__preprocessing(para), source_split_para))
+
+        # Step 3: Encode vector with SBERT mode 
+        # source embedding
+        source_embedding = list(map(lambda sent_para: self.model.encode(sent_para), source_sent_pp))
+
+        # Analysis Comparison
+        for input_para_pp_sent in input_sent_pp:
+            # input embedding
+            input_embedding = self.model.encode(input_para_pp_sent)
+
+            # Step 4: Check if paraphrasing
+            # Input: [Vector: [number]] and [[Vector: [number]]]
+            evidence_list = [{'sent': input_para_pp_sent[position_input],
+                              'pos': position_input,
+                              'evidence': [{
+                                            'sent_source': source_sent_pp[position_para][position_source],
+                                            'sent_source_pos': position_source,
+                                            'para_pos': position_para,
+                                            'sm_score': min(1.0, self.__check_paraphrasing(input_sent_vector, vector, paraphrase_threshold)[0]),
+                                            'method': self.__check_paraphrasing(input_sent_vector, vector, paraphrase_threshold)[1]}
+                                           for position_para, vector_list in enumerate(source_embedding)
+                                           for position_source, vector in enumerate(vector_list)
+                                           ]} for position_input, input_sent_vector in enumerate(input_embedding)]
+            # Output: [{sent: sentence, pos: position_input, evidence: [{ sent_source: sent2, sent_source_pos: position_source, cos_sim: number, method: string}]]
+
+            # Step 5: Check if near/exact copy
+            for paraphrased_evidence in evidence_list:
+                # Compare only strings has more than 2 words
+                for evidence in paraphrased_evidence['evidence']:
+                    sm = self.__string_based(
+                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
+                    if sm:
+                        evidence['method'] = sm[1]
+                        evidence['sm_score'] = sm[0]
+
+            # Step 6: Conclusion methods
+            for evidence in evidence_list:
+                evidence['evidence'] = list(
+                    filter(lambda evi: evi['method'] != None, evidence['evidence']))
+
+            evidences.append(evidence_list)
+        return {
+            'evidences': evidences,
+            'source_handled': source_sent_pp,
+            'input_handled': input_sent_pp 
+        }
 
 class VieExhaustive(Exhaustive):
     def __init__(self):
