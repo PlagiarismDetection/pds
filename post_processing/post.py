@@ -60,7 +60,7 @@ class PostProcessing(ABC):
         #      'optional': {….},
         #      },
         # 'sent_details': [[{
-        #       'evidence': [] 
+        #       'evidence': []
         #       'pos': int
         #       'sent': string
         #       'max_score': float
@@ -93,17 +93,21 @@ class PostProcessing(ABC):
                                    for evi in sent_evi['evidence']]
                     for method in numword_method.keys():
                         if method in method_list:
-                            numword_method[method] += len(sent_evi['sent'].split())
+                            numword_method[method] += len(
+                                sent_evi['sent'].split())
                             # assign summary method for sentence
                             sent_evi['summary_method'] = method
                             break
-                    
+
                     # summary max score for each sentence, prioritize 'exact' and 'near' method
-                    near_exact_can = list(filter(lambda x: x['method'] in ['exact','near'], sent_evi['evidence']))
-                    if len(near_exact_can)>0:
-                        sent_evi['max_score'] = max(list(map(lambda x: x['sm_score'], near_exact_can)))
-                    else: #candidate_list has only paraphrase method
-                        sent_evi['max_score'] = max(list(map(lambda x: x['sm_score'], sent_evi['evidence'])))
+                    near_exact_can = list(filter(lambda x: x['method'] in [
+                                          'exact', 'near'], sent_evi['evidence']))
+                    if len(near_exact_can) > 0:
+                        sent_evi['max_score'] = max(
+                            list(map(lambda x: x['sm_score'], near_exact_can)))
+                    else:  # candidate_list has only paraphrase method
+                        sent_evi['max_score'] = max(
+                            list(map(lambda x: x['sm_score'], sent_evi['evidence'])))
 
         sim_score = numword_sim/total_word
         paraphrase_score = numword_method['paraphrase']/total_word
@@ -111,7 +115,8 @@ class PostProcessing(ABC):
         near_score = numword_method['near']/total_word
 
         # Filter the evidence for each source and cal sim_score
-        evidence_source = cls.__filter_evidence_source(filtered_evidences, total_word)
+        evidence_source = cls.__filter_evidence_source(
+            filtered_evidences, total_word)
 
         # Output
         postprocess_result = {
