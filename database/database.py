@@ -1,7 +1,7 @@
 from abc import ABC
 from pds.reader import getPDFList, pdfClean, getDOCXList, docxClean
 from pymongo import MongoClient
-
+from bson.objectid import ObjectId
 
 class Database(ABC):
     # module database manages basic manipulations on the local database
@@ -23,10 +23,20 @@ class Database(ABC):
             filename, title, author, creation_date, content)
         return collection_name.insert_one(data)
 
-    def getCollection(self, colname):
+    def getCollection(self, colname, list_fields=None):
         # -> list(dictionary): return a list of documents in a collection
         collection = self.db[colname]
+        if list_fields:
+            specific_fields = {field: 1 for field in list_fields}
+            return collection.find({}, specific_fields)     
         return collection.find()
+
+    def getCollectionById(self, colname, id, list_fields=None):
+        collection = self.db[colname]
+        if list_fields:
+            specific_fields = {field: 1 for field in list_fields}
+            return collection.find_one({'_id': ObjectId(id)}, specific_fields)     
+        return collection.find_one({'_id': ObjectId(id)})
 
     def updateDocuments(self, colname, filter={}, updateValue=None):
         # -> list(dictionary): return a list of updated documents in a collection

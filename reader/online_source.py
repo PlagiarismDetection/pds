@@ -31,7 +31,7 @@ class ReadOnlSource():
     @staticmethod
     def download_pdf_from_url(url, output_dir=''):
         # Max 10 seconds to connect to server and max 20 seconds to wait on response
-        response = requests.get(url, timeout=(30, 30))
+        response = requests.get(url, timeout=10)
         print(response.headers)
 
         if response.status_code == 200:
@@ -58,7 +58,7 @@ class ReadOnlSource():
     @staticmethod
     def read_text_from_url(url):
         # Max 5 seconds to connect to server and max 10 seconds to wait on response
-        response = requests.get(url, verify=False, timeout=(30, 30))
+        response = requests.get(url, verify=False, timeout=10)
   
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, features="html.parser")

@@ -7,10 +7,6 @@ class PostProcessing(ABC):
         super().__init__()
 
     @staticmethod
-    def __post_filter(evidences):
-        return list(map(lambda para_evidence: list(filter(lambda sent_evidence: sent_evidence['evidence'] != [], para_evidence)), evidences))
-
-    @staticmethod
     def __filter_evidence_source(evidences, content_sources, total_word):
         # get list title of candidate sources
         flat = [x for para in evidences for sen in para for x in sen['evidence']]
@@ -27,10 +23,22 @@ class PostProcessing(ABC):
                     # filter evident for each title
                     list_evidence = list(
                         filter(lambda evi: evi['title'] == title, sent_evi['evidence']))
+                    
+                    # find summary_method
+                    method_list = [evi['method']
+                                   for evi in list_evidence]
+                    
+                    summary_method =''
+                    for method in ['exact','near','paraphrase']:
+                        if method in method_list:
+                            summary_method = method
+                            break
+
                     sent_evi_title.append({
                         'evidence': list_evidence,
                         'pos': sent_evi['pos'],
-                        'sent': sent_evi['sent']
+                        'sent': sent_evi['sent'],
+                        'summary_method':summary_method
                     })
                     # cal total num word plagiarism for each title
                     if len(list_evidence) > 0:
@@ -117,9 +125,7 @@ class PostProcessing(ABC):
         #       'summary_method': String
         #     }]]
         # }
-
-        # Remove sentence with empty evidences out of evidences list
-        filtered_evidences = cls.__post_filter(evidences['evidences'])
+        filtered_evidences = evidences['evidences']
 
         # Calculate the percentage of plagiarism
         sim_score, paraphrase_score, exact_score, near_score, total_word = cls.cal_percentage_plagiarism(evidences)
@@ -168,7 +174,7 @@ class PostProcessing(ABC):
         # }
 
         # Remove sentence with empty evidences out of evidences list
-        filtered_evidences = cls.__post_filter(evidences['evidences'])
+        filtered_evidences = evidences['evidences']
 
         # Calculate the percentage of plagiarism
         sim_score, paraphrase_score, exact_score, near_score, total_word = cls.cal_percentage_plagiarism(evidences)
