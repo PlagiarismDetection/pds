@@ -222,7 +222,8 @@ def split_para(data, isPDF=False):
 
     # Remove repeated string having space
     # Ex: . . .  . _     _  _ _ _
-    temp = re.sub(r"\s+(?:.\s+){2,}", ' ', temp)
+    temp = re.sub(
+        r"\s+(?:[^a-zA-Z0-9àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶÈÉẺẼẸÊỀẾỂỄỆĐÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴÂĂĐÔƠƯ]\s+){2,}", ' ', temp)
 
     # Delimeter paragraph by @@@
     if isPDF:
