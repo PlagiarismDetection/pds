@@ -15,7 +15,10 @@ class Exhaustive(ABC):
     def __preprocessing(self, para):
         sent_list = self.preprocessor.pp2sent(
             para, replace_num=False, lowercase=False)
-        return list(filter(lambda sent: len(sent.split()) > 2, sent_list))
+        filtered_list = list(filter(lambda sent: len(sent.split()) >= 5, sent_list))
+        if len(filtered_list) != len(sent_list):
+            raise Exception('Not enough words. Required at least 5 words in each sentence.')
+        return sent_list
 
     def __string_based(self, input_sent, source_sent, exact_threshold, near_threshold, similarity_metric):
         input_tokens = self.preprocessor.tokenize(input_sent)
