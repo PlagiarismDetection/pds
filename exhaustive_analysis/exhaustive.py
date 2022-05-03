@@ -15,9 +15,11 @@ class Exhaustive(ABC):
     def __preprocessing(self, para):
         sent_list = self.preprocessor.pp2sent(
             para, replace_num=False, lowercase=False)
-        filtered_list = list(filter(lambda sent: len(sent.split()) >= 5, sent_list))
+        filtered_list = list(
+            filter(lambda sent: len(sent.split()) >= 5, sent_list))
         if len(filtered_list) != len(sent_list):
-            raise Exception('Not enough words. Required at least 5 words in each sentence.')
+            raise Exception(
+                'One of the sentences in your input text/file(s) contains not enough words. Required at least 5 words in each sentence.')
         return sent_list
 
     def __string_based(self, input_sent, source_sent, exact_threshold, near_threshold, similarity_metric):
@@ -63,11 +65,12 @@ class Exhaustive(ABC):
             candidate_list = para['candidate_list']
             candidate_list_pp_sent = list(map(lambda candidate: {'title': candidate['title'], 'content': candidate['content'], 'analysis_content': [
                 self.__preprocessing(source_para) for source_para in candidate['content']]}, candidate_list))
-            
+
             for can in candidate_list_pp_sent:
                 for source in summary_content_each_title:
                     if can['title'] == source['title']:
-                        source['analysis_content'].append(can['analysis_content'])
+                        source['analysis_content'].append(
+                            can['analysis_content'])
                         source['content'].append(can['content'])
                         break
                 # If not found
@@ -111,7 +114,7 @@ class Exhaustive(ABC):
             for paraphrased_evidence in evidence_list:
                 for evidence in paraphrased_evidence['evidence']:
                     sm = self.__string_based(
-                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric) 
+                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
                     if sm:
                         evidence['method'] = sm[1]
                         evidence['sm_score'] = sm[0]
@@ -123,9 +126,9 @@ class Exhaustive(ABC):
 
             evidences.append(evidence_list)
         return {
-            'evidences':evidences,
+            'evidences': evidences,
             'candidate_list': summary_content_each_title,
-            'input_handled': input_handled 
+            'input_handled': input_handled
         }
 
     def online_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
@@ -188,9 +191,9 @@ class Exhaustive(ABC):
 
             evidences.append(evidence_list)
         return {
-            'evidences':evidences,
+            'evidences': evidences,
             'candidate_list': candidate_list_pp_sent,
-            'input_handled': input_handled 
+            'input_handled': input_handled
         }
 
     def text_compare_analysis(self, input_content, source_content, is_inputPDF, is_sourcePDF, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
@@ -200,16 +203,19 @@ class Exhaustive(ABC):
         input_split_para = split_para(input_content, is_inputPDF)
         # source split para
         source_split_para = split_para(source_content, is_sourcePDF)
-        
+
         # Step 2: Sentence pre_processing
         # input sentence pp
-        input_sent_pp = list(map(lambda para: self.__preprocessing(para), input_split_para))
+        input_sent_pp = list(
+            map(lambda para: self.__preprocessing(para), input_split_para))
         # source sentence pp
-        source_sent_pp = list(map(lambda para: self.__preprocessing(para), source_split_para))
+        source_sent_pp = list(
+            map(lambda para: self.__preprocessing(para), source_split_para))
 
-        # Step 3: Encode vector with SBERT mode 
+        # Step 3: Encode vector with SBERT mode
         # source embedding
-        source_embedding = list(map(lambda sent_para: self.model.encode(sent_para), source_sent_pp))
+        source_embedding = list(
+            map(lambda sent_para: self.model.encode(sent_para), source_sent_pp))
 
         # Analysis Comparison
         for input_para_pp_sent in input_sent_pp:
@@ -221,14 +227,14 @@ class Exhaustive(ABC):
             evidence_list = [{'sent': input_para_pp_sent[position_input],
                               'pos': position_input,
                               'evidence': [{
-                                            'sent_source': source_sent_pp[position_para][position_source],
-                                            'sent_source_pos': position_source,
-                                            'para_pos': position_para,
-                                            'sm_score': min(1.0, self.__check_paraphrasing(input_sent_vector, vector, paraphrase_threshold)[0]),
-                                            'method': self.__check_paraphrasing(input_sent_vector, vector, paraphrase_threshold)[1]}
-                                           for position_para, vector_list in enumerate(source_embedding)
-                                           for position_source, vector in enumerate(vector_list)
-                                           ]} for position_input, input_sent_vector in enumerate(input_embedding)]
+                                  'sent_source': source_sent_pp[position_para][position_source],
+                                  'sent_source_pos': position_source,
+                                  'para_pos': position_para,
+                                  'sm_score': min(1.0, self.__check_paraphrasing(input_sent_vector, vector, paraphrase_threshold)[0]),
+                                  'method': self.__check_paraphrasing(input_sent_vector, vector, paraphrase_threshold)[1]}
+                for position_para, vector_list in enumerate(source_embedding)
+                for position_source, vector in enumerate(vector_list)
+            ]} for position_input, input_sent_vector in enumerate(input_embedding)]
             # Output: [{sent: sentence, pos: position_input, evidence: [{ sent_source: sent2, sent_source_pos: position_source, cos_sim: number, method: string}]]
 
             # Step 5: Check if near/exact copy
@@ -250,8 +256,9 @@ class Exhaustive(ABC):
         return {
             'evidences': evidences,
             'source_handled': source_sent_pp,
-            'input_handled': input_sent_pp 
+            'input_handled': input_sent_pp
         }
+
 
 class VieExhaustive(Exhaustive):
     def __init__(self):
@@ -262,7 +269,7 @@ class VieExhaustive(Exhaustive):
 class EngExhaustive(Exhaustive):
     """
         English SBERT model Evaluation
-        
+
         Dataset: Machine Translation Metrics Paraphrase Corpus
         The training set contains 5000 true paraphrase pairs and 5000 false paraphrase pairs; 
         the test set contains 1500 and 1500 pairs, respectively. The test collection from the 
@@ -303,6 +310,7 @@ class EngExhaustive(Exhaustive):
         ==> We used 'paraphrase-multilingual-MiniLM-L12-v2' model, because its performance is very good and also model size is ok. 
         To relate with our Vietnamese SBERT model, the threshold is 0.714 is nearest with this English SBERT threshold. 
     """
+
     def __init__(self):
         model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
         super().__init__(model, EngPreprocessor)
