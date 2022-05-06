@@ -15,11 +15,6 @@ class Exhaustive(ABC):
     def __preprocessing(self, para):
         sent_list = self.preprocessor.pp2sent(
             para, replace_num=False, lowercase=False)
-        filtered_list = list(
-            filter(lambda sent: len(sent.split()) >= 5, sent_list))
-        if len(filtered_list) != len(sent_list):
-            raise Exception(
-                'One of the sentences in your input text/file(s) contains not enough words. Required at least 5 words in each sentence.')
         return sent_list
 
     def __string_based(self, input_sent, source_sent, exact_threshold, near_threshold, similarity_metric):
