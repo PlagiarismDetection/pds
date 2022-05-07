@@ -70,15 +70,18 @@ class ViePreprocessor():
         newtext = text
 
         # remove date time ?
-        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*', '' if remove else ' DATE', newtext)
-        newtext = re.sub(r'\d+[:]\d+([:]\d+)*', '' if remove else ' TIME', newtext)
+        newtext = re.sub(r'\d+[/-]\d+([/-]\d+)*',
+                         '' if remove else ' DATE', newtext)
+        newtext = re.sub(r'\d+[:]\d+([:]\d+)*',
+                         '' if remove else ' TIME', newtext)
 
         # remove currency ?
         # newtext = re.sub(r'\d+([.,]\d+)*$', ' dollar', newtext)
         # newtext = re.sub(r'$\d+([.,]\d+)*', ' dollar', newtext)
 
         # remove simple int number, float number may be following space or "(" like "(12.122.122)"
-        newtext = re.sub(r'-?\d+([.,]\d+)*', '' if remove else ' NUMB', newtext)
+        newtext = re.sub(r'-?\d+([.,]\d+)*',
+                         '' if remove else ' NUMB', newtext)
         return newtext
 
     @classmethod
@@ -102,7 +105,16 @@ class ViePreprocessor():
 
         for word in tokens:                         # Go through every word in your tokens list
             word = word.lower()                     # lowercase
+
+            if '..' in word:
+                continue
+            if word[:2] == '. ':
+                word = word[2:]
+
+            word = re.sub(r'(\]\s)?(\[\s\]\s?)*', '', word) # Replace '] [ ] [ ]' => ''
+
             if (word not in vnm_stopwords and       # remove stopwords
                     word not in punctuations):      # remove punctuation
                 tokens_clean.append(word)
+
         return tokens_clean
