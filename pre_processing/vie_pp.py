@@ -111,9 +111,9 @@ class ViePreprocessor():
             if word[:2] == '. ':
                 word = word[2:]
 
-            # word = re.sub(r'(\[])(\]\s)?(\[\s\]\s?)*', '', word) # Replace '] [ ] [ ]' => ''
-            word = re.sub(r'[\[\]\'\"+!?]', '', word) # Replace '] [] []' => ''
-            word = re.sub(r'\s*$', '', word)        # Remove 'kmeans  ' => 'kmeans'
+            word = re.sub(r'[\[\]\'\"`+!?]', '', word)  # Remove '] [] []' => ''
+            word = re.sub(r'(\.){2,}', '', word)        # Remove '...' => ''
+            word = re.sub(r'\s*$', '', word)            # Remove 'kmeans  ' => 'kmeans'
 
             if word == '': continue
 

@@ -87,6 +87,13 @@ class EngPreprocessor():
         tokens_clean = []
 
         for word in tokens:                         # Go through every word in your tokens list
+            
+            word = re.sub(r'[\[\]\'\"`+!?]', '', word)  # Remove '] [] []' => ''
+            word = re.sub(r'(\.){2,}', '', word)        # Remove '...' => ''
+            word = re.sub(r'\s*$', '', word)            # Remove 'kmeans  ' => 'kmeans'
+
+            if word == '': continue
+            
             if (word not in stopwords_english and   # remove stopwords
                     word not in punctuations):      # remove punctuation
                 tokens_clean.append(word)
