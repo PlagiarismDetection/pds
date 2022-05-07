@@ -11,7 +11,7 @@ vnm_stopwords = f.read().splitlines()
 f.close()
 
 # Get punctuations sring from NLTK
-punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
+punctuations = """!"#$%&'’()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
 
 
 class ViePreprocessor():
@@ -112,11 +112,11 @@ class ViePreprocessor():
                 word = word[2:]
 
             # word = re.sub(r'(\[])(\]\s)?(\[\s\]\s?)*', '', word) # Replace '] [ ] [ ]' => ''
-            word = re.sub(r'[\[\]+\'\"]', '', word) # Replace '] [] []' => ''
+            word = re.sub(r'[\[\]\'\"+!?]', '', word) # Replace '] [] []' => ''
             word = re.sub(r'\s*$', '', word)        # Remove 'kmeans  ' => 'kmeans'
 
             if word == '': continue
-            
+
             if (word not in vnm_stopwords and       # remove stopwords
                     word not in punctuations):      # remove punctuation
                 tokens_clean.append(word)

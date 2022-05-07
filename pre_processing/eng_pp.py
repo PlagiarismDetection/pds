@@ -7,7 +7,7 @@ from nltk.stem import PorterStemmer         # module for stemming
 from nltk.stem import WordNetLemmatizer     # module for lemmatization
 
 # Get punctuations sring from NLTK
-punctuations = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
+punctuations = """!"#$%&'’()*+,-./:;<=>?@[\]^_`{|}~…“”–"""
 
 
 class EngPreprocessor():
