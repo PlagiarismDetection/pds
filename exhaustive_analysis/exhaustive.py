@@ -1,4 +1,5 @@
 from pds.pre_processing import EngPreprocessor, ViePreprocessor
+from pds.pre_processing.utils import remove_puntuation
 from .similarity_metric import SimilarityMetric
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
@@ -15,11 +16,17 @@ class Exhaustive(ABC):
     def __preprocessing(self, para):
         sent_list = self.preprocessor.pp2sent(
             para, replace_num=False, lowercase=False)
-        return sent_list
+        return list(filter(lambda sent: len(sent.split()) >= 5, sent_list))
 
     def __string_based(self, input_sent, source_sent, exact_threshold, near_threshold, similarity_metric):
-        input_tokens = self.preprocessor.tokenize(input_sent)
-        source_tokens = self.preprocessor.tokenize(source_sent)
+        input_sent_rm = remove_puntuation(input_sent)
+        source_sent_rm = remove_puntuation(source_sent)
+
+        input_tokens = self.preprocessor.tokenize(input_sent_rm)
+        source_tokens = self.preprocessor.tokenize(source_sent_rm)
+
+        # input_tokens_rm = self.preprocessor.rm_stopword_punct(input_tokens)
+        # source_tokens_rm = self.preprocessor.rm_stopword_punct(source_tokens)
 
         min_length = min(len(input_tokens), len(source_tokens))
         if min_length <= 5:
