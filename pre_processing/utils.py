@@ -283,9 +283,10 @@ def split_para(data, isPDF=False):
 def remove_puntuation(text):
     # Replace all character not word utf-8 [a-zA-Z0-9_] or newline to space
     cleanStr = re.sub(
-        r'[^a-zA-Z0-9àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶÈÉẺẼẸÊỀẾỂỄỆĐÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴÂĂĐÔƠƯ\n\-]+', ' ', text)
+        r'[^a-zA-Z0-9àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶÈÉẺẼẸÊỀẾỂỄỆĐÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴÂĂĐÔƠƯ\n\-\s]+', ' ', text)
 
     # Replace repeated underscore from 2 times to space
+    cleanStr = re.sub('\s{2,}', ' ', cleanStr)
     cleanStr = re.sub('_{2,}', ' ', cleanStr)
 
     return cleanStr
