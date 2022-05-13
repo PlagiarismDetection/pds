@@ -314,5 +314,5 @@ class EngExhaustive(Exhaustive):
     """
 
     def __init__(self):
-        model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        model = SentenceTransformer('all-distilroberta-v1')
         super().__init__(model, EngPreprocessor)
