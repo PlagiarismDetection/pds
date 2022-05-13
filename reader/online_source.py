@@ -96,9 +96,9 @@ class ReadOnlSource():
             response = requests.get(url, verify=False)
             soup = BeautifulSoup(response.content, "html.parser")
             child_soup = soup.find_all('a')
-            text = "Download full-text PDF"
+            text = ["Download full-text PDF","Download file PDF"]
             for i in child_soup:
-                if i.text == text:
+                if i.text in text:
                     url = i['href']
         return url
 
