@@ -31,7 +31,7 @@ class ReadOnlSource():
     @staticmethod
     def download_pdf_from_url(url, output_dir=''):
         # Max 10 seconds to connect to server and max 20 seconds to wait on response
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=10, headers={"User-Agent": "XY"})
         print(response.headers)
 
         if response.status_code == 200:
@@ -58,7 +58,7 @@ class ReadOnlSource():
     @staticmethod
     def read_text_from_url(url):
         # Max 5 seconds to connect to server and max 10 seconds to wait on response
-        response = requests.get(url, verify=False, timeout=10)
+        response = requests.get(url, verify=False, timeout=10, headers={"User-Agent": "XY"})
   
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, features="html.parser")
@@ -93,7 +93,7 @@ class ReadOnlSource():
             url=re.sub("arxiv.org/abs", "arxiv.org/pdf",url)+'.pdf'
         # Researchgate
         elif re.search("researchgate.net/publication", url):
-            response = requests.get(url, verify=False)
+            response = requests.get(url, verify=False, headers={"User-Agent": "XY"})
             soup = BeautifulSoup(response.content, "html.parser")
             child_soup = soup.find_all('a')
             text = ["Download full-text PDF","Download file PDF"]
