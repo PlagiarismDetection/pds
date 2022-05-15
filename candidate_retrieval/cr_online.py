@@ -184,7 +184,14 @@ class CROnline():
         # this line may change in future based on google's web page structure
         for searchWrapper in soup.find_all('li', attrs={'class': 'b_algo'}):
             urls = searchWrapper.find_all('a')
-            url = [u.get('href') for u in urls if u.get('href')][0]
+            # url = [u.get('href') for u in urls if u.get('href')][0]
+            url = searchWrapper.find('cite').text.strip()
+
+            if url[-3:] == "...":
+                if url[:28] == "https://www.researchgate.net":
+                    url = url[:-3]
+                else:
+                    continue
 
             title = searchWrapper.find('a').text.strip()
 
