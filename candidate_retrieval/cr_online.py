@@ -206,14 +206,14 @@ class CROnline():
         return output
 
     @classmethod
-    def search_control(cls, query_list):
+    def search_control(cls, query_list, top_res):
         # Output: [{input_para: string, candidate_list: [{title: string, content: [source_para: string], url, snippet}]}]
 
         result = []
         for chunk, query1, query2 in query_list:
             candidate_list = []
-            candidate_list += cls.searchBing(query1)
-            candidate_list += cls.searchBing(query2)
+            candidate_list += cls.searchBing(query1)[:top_res]
+            candidate_list += cls.searchBing(query2)[:top_res]
 
             result += [{'input_para': chunk, 'candidate_list': candidate_list}]
 
@@ -323,7 +323,7 @@ class CROnline():
         return check_snippet_based
 
     @classmethod
-    def combine_all_step(cls, data, lang='en', isPDF=False, top_k=20, threshold_snippet_checking=1):
+    def combine_all_step(cls, data, lang='en', isPDF=False, top_k=20, top_res=7, threshold_snippet_checking=1):
         # Set Language
         cls.lang = lang
         cls.isPDF = isPDF
@@ -344,7 +344,7 @@ class CROnline():
 
         # Searching: Query Formulate + Search control
         query_list = cls.query_formulate(pp_chunk_list, top_k)
-        search_res = cls.search_control(query_list)
+        search_res = cls.search_control(query_list, top_res)
 
         res_len = [len(r['candidate_list']) for r in search_res]
         print(

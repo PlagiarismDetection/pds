@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from tika import parser
 import re
 from pds.pre_processing.utils import split_para
+requests.packages.urllib3.disable_warnings()
 
 class OnlSource():
     def __init__(self, metadata, content):

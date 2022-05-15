@@ -65,6 +65,12 @@ class PostProcessing(ABC):
             'paraphrase': 0,
         }
 
+        numsent_method = {
+            'exact': 0,
+            'near': 0,
+            'paraphrase': 0,
+        }
+
         for para in evidences['evidences']:
             for sent_evi in para:
                 total_word += len(sent_evi['sent'].split())
@@ -80,6 +86,7 @@ class PostProcessing(ABC):
                         if method in method_list:
                             numword_method[method] += len(
                                 sent_evi['sent'].split())
+                            numsent_method[method] += 1
                             # assign summary method for sentence
                             sent_evi['summary_method'] = method
                             break
@@ -94,17 +101,11 @@ class PostProcessing(ABC):
                         sent_evi['max_score'] = max(
                             list(map(lambda x: x['sm_score'], sent_evi['evidence'])))
 
-        # find number of sentences plagiarism for each technique
-        lst_sent_evi = [sent_evi for para in evidences['evidences'] for sent_evi in para]
-        exact_sent = len(list(filter(lambda sent_evi: sent_evi['summary_method']=='exact', lst_sent_evi)))
-        near_sent = len(list(filter(lambda sent_evi: sent_evi['summary_method']=='near', lst_sent_evi)))
-        paraphrase_sent = len(list(filter(lambda sent_evi: sent_evi['summary_method']=='paraphrase', lst_sent_evi)))
-
         sim_score = numword_sim/total_word
         paraphrase_score = numword_method['paraphrase']/total_word
         exact_score = numword_method['exact']/total_word
         near_score = numword_method['near']/total_word
-        return sim_score, paraphrase_score, exact_score, near_score, total_word, exact_sent, near_sent, paraphrase_sent
+        return sim_score, paraphrase_score, exact_score, near_score, total_word, numsent_method['exact'],  numsent_method['near'], numsent_method['paraphrase']
 
     @classmethod
     def post_processing(cls, evidences):
@@ -138,7 +139,7 @@ class PostProcessing(ABC):
         filtered_evidences = evidences['evidences']
 
         # Calculate the percentage of plagiarism
-        sim_score, paraphrase_score, exact_score, near_score, total_word = cls.cal_percentage_plagiarism(
+        sim_score, paraphrase_score, exact_score, near_score, total_word, exact_sent, near_sent, paraphrase_sent = cls.cal_percentage_plagiarism(
             evidences)
 
         # Filter the evidence for each source and cal sim_score
@@ -153,6 +154,10 @@ class PostProcessing(ABC):
                 'near_score': near_score,
                 'paraphrase_score': paraphrase_score,
                 'evidence_source': evidence_source,
+                'paraphrase_score': paraphrase_score,
+                'exact_sent': exact_sent,
+                'near_sent': near_sent,
+                'paraphrase_sent': paraphrase_sent,
                 'optional': {}
             },
             'sent_details': filtered_evidences,
