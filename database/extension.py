@@ -14,16 +14,19 @@ class ExDatabase(Database):
         self.extensionFields.append(fieldname)
         return self.updateDocuments(colname, updateValue={fieldname: defaultValue})
 
-    def updateFieldBasedOnField(self, colname, fieldname, func, otherField='Content'):
+    def updateFieldBasedOnField(self, colname, fieldname, func, otherField='Content', filter={}):
         # -> None: update a field value base on another
-        docs = self.db[colname].find({})
+        docs = self.db[colname].find(filter)
         for doc in docs:
             id = doc['_id']
             content = doc[otherField]
             self.updateDocuments(colname, filter={'_id': id}, updateValue={
                                  fieldname: func(content)})
-        self.extensionFields.append(fieldname)
+        if fieldname not in self.extensionFields:
+            self.extensionFields.append(fieldname)
 
+        return 
+            
     def removeField(self, colname, fieldname):
         # -> list(dictionary): return a list of documents that had been deleted in a collection
         # Note: only delete an extension fields.

@@ -323,7 +323,7 @@ class CROnline():
         return check_snippet_based
 
     @classmethod
-    def combine_all_step(cls, data, lang='en', isPDF=False, top_k=20, top_res=7, threshold_snippet_checking=1):
+    def combine_all_step(cls, data, lang='en', isPDF=False, top_k=20, top_res=5, threshold_snippet_checking=1):
         # Set Language
         cls.lang = lang
         cls.isPDF = isPDF
