@@ -22,14 +22,11 @@ class Exhaustive(ABC):
         input_sent_rm = remove_puntuation(input_sent)
         source_sent_rm = remove_puntuation(source_sent)
 
-        input_sent_rm = self.preprocessor.lowercase(input_sent_rm)
-        source_sent_rm = self.preprocessor.lowercase(source_sent_rm)
-
         input_tokens = self.preprocessor.tokenize(input_sent_rm)
         source_tokens = self.preprocessor.tokenize(source_sent_rm)
 
-        # input_tokens_rm = self.preprocessor.rm_stopword_punct(input_tokens)
-        # source_tokens_rm = self.preprocessor.rm_stopword_punct(source_tokens)
+        input_sent_rm = self.preprocessor.lowercase(input_sent_rm)
+        source_sent_rm = self.preprocessor.lowercase(source_sent_rm)
 
         min_length = min(len(input_tokens), len(source_tokens))
         if min_length <= 5:

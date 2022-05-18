@@ -246,7 +246,7 @@ class CROnline():
     def check_duplicate_url(cls, search_results):
         # Search result contain list of list all search results on each paragraph
         skipWebLst = ['tailieumienphi.vn', 'baovanhoa.vn', 'nslide.com', 'www.coursehero.com',
-                      'towardsdatascience.com', 'medium.com']
+                      'towardsdatascience.com', 'medium.com','quizlet']
         skipTailLst = ['model', 'aspx', 'xls', 'pptx', 'xml', 'jar', 'zip', '']
 
         check_duplicated = []
@@ -258,7 +258,7 @@ class CROnline():
             url = search_res['url']
 
             # Filter all url cannot be downloaded
-            if url.split('.')[-1] in skipTailLst or url.split('/')[2] in skipWebLst:
+            if url.split('.')[-1] in skipTailLst or (len(url.split('/'))>2 and url.split('/')[2] in skipWebLst):
                 continue
 
             # PP title
