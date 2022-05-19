@@ -5,7 +5,18 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from abc import ABC
 from pds.pre_processing.utils import split_para
+import time
 
+
+DEBUG = True
+
+
+def log(message, param=None):
+    if DEBUG:
+        if param:
+            print(message, param)
+        else:
+            print(message)
 
 class Exhaustive(ABC):
     def __init__(self, model, preprocessor):
@@ -136,28 +147,57 @@ class Exhaustive(ABC):
     def online_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         input_handled = []
-        # Step 1: Input sentence preprocessing for candidate source
+        
+        """ 
+            Step 1: Input sentence preprocessing for candidate source 
+        """
+        log(">>> Step 1: Input sentence preprocessing for candidate source ")
+        start_time = time.time()
         candidate_list = candidate_retrieval_result['candidate_list']
         # Source paragraphs pp
         candidate_list_pp_sent = list(map(lambda candidate: {'title': candidate['title'], 'url': candidate['url'], 'content': candidate['content'], 'analysis_content': [
             self.__preprocessing(source_para) for source_para in candidate['content']]}, candidate_list))
+        log("Time execution: ", time.time() - start_time)
 
-        # Step 2: Encode vector with SBERT mode for candidate source
+        """ 
+            Step 2: Encode vector with SBERT model for candidate source 
+        """
+        log(">>> Step 2: Encode vector with SBERT model for candidate source  ")
+        start_time = time.time()
         # Input: [{title: string, content: [source_para: [sent: string]]}]
         source_embedding = list(map(lambda candidate: {'title': candidate['title'], 'url': candidate['url'], 'content': candidate['content'], 'analysis_content': list(
-            map(lambda para: self.model.encode(para), candidate['analysis_content']))}, candidate_list_pp_sent))
+            map(lambda para: self.model.encode(para, batch_size=64, show_progress_bar=False), candidate['analysis_content']))}, candidate_list_pp_sent))
+        log("Time execution: ", time.time() - start_time)
+
+
         # Output: [{title: string, content: [source_para: [Vector: [number]]}]
         for input_paragraph in candidate_retrieval_result['input_para_list']:
-            # Step 1: Input sentence preprocessing
+            """
+                Step 1: Input sentence preprocessing
+            """
+            log(">>> Step 1: Input sentence preprocessing ")
+            start_time = time.time()
             # Input paragraph pp
             input_para_pp_sent = self.__preprocessing(input_paragraph)
             input_handled.append(input_para_pp_sent)
-            # Step 2: Encode vector with SBERT mode
-            # Input: [sent: string]
-            input_embedding = self.model.encode(input_para_pp_sent)
-            # Output: [Vector: [number]]
+            log("Time execution: ", time.time() - start_time)
 
-            # Step 3: Check if paraphrasing
+            """
+                Step 2: Encode vector with SBERT mode
+            """
+            log(">>> Step 2: Encode vector with SBERT mode ")
+            start_time = time.time()
+            # Input: [sent: string]
+            input_embedding = self.model.encode(
+                input_para_pp_sent, batch_size=64, show_progress_bar=False)
+            # Output: [Vector: [number]]
+            log("Time execution: ", time.time() - start_time)
+
+            """
+                Step 3: Check if paraphrasing
+            """
+            log(">>> Step 3: Check if paraphrasing ")
+            start_time = time.time()
             # HAS THE SAME WITH OFFLINE COMPARISON IN REMAINING STEPS
             # Input: [Vector: [number]] and [{title: string, content: [source_para: [Vector: [number]]}]
             evidence_list = [{'sent': input_para_pp_sent[position_input],
@@ -175,8 +215,13 @@ class Exhaustive(ABC):
                                            for position_source, vector in enumerate(vector_list)
                                            ]} for position_input, input_sent_vector in enumerate(input_embedding)]
             # Output: [{sent: sentence, pos: position_input, evidence: [{title: title, sent_source: sent2, sent_source_pos: position_source, cos_sim: number, method: string}]]
+            log("Time execution: ", time.time() - start_time)
 
-            # Step 4: Check if near/exact copy
+            """
+                Step 4: Check if near/exact copy
+            """
+            start_time = time.time()
+            log(">>> Step 4: Check if near/exact copy ")
             for paraphrased_evidence in evidence_list:
                 # Compare only strings has more than 2 words
                 for evidence in paraphrased_evidence['evidence']:
@@ -185,13 +230,22 @@ class Exhaustive(ABC):
                     if sm:
                         evidence['method'] = sm[1]
                         evidence['sm_score'] = sm[0]
+            log("Time execution: ", time.time() - start_time)
 
-            # Step 5: Conclusion methods
+            """
+                Step 5: Conclusion methods
+            """
+            start_time = time.time()
+            log(">>> Step 5: Conclusion methods ")
             for evidence in evidence_list:
                 evidence['evidence'] = list(
                     filter(lambda evi: evi['method'] != None, evidence['evidence']))
 
             evidences.append(evidence_list)
+            log("Time execution: ", time.time() - start_time)
+
+        log(">>> End ")
+
         return {
             'evidences': evidences,
             'candidate_list': candidate_list_pp_sent,
