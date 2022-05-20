@@ -225,11 +225,12 @@ class Exhaustive(ABC):
             for paraphrased_evidence in evidence_list:
                 # Compare only strings has more than 2 words
                 for evidence in paraphrased_evidence['evidence']:
-                    sm = self.__string_based(
-                        paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
-                    if sm:
-                        evidence['method'] = sm[1]
-                        evidence['sm_score'] = sm[0]
+                    if evidence['sm_score'] > 0.6:
+                        sm = self.__string_based(
+                            paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
+                        if sm:
+                            evidence['method'] = sm[1]
+                            evidence['sm_score'] = sm[0]
             log("Time execution: ", time.time() - start_time)
 
             """

@@ -33,7 +33,6 @@ class ReadOnlSource():
     def download_pdf_from_url(url, output_dir=''):
         # Max 10 seconds to connect to server and max 20 seconds to wait on response
         response = requests.get(url, timeout=10, headers={"User-Agent": "XY"})
-        print(response.headers)
 
         if response.status_code == 200:
             file_path = os.path.join(output_dir, os.path.basename(url))
@@ -91,7 +90,7 @@ class ReadOnlSource():
     def handle_special_url(url):
         # Arxiv
         if re.search("arxiv.org/abs",url):
-            url=re.sub("arxiv.org/abs", "arxiv.org/pdf",url)+'.pdf'
+            url = re.sub("arxiv.org/abs", "export.arxiv.org/pdf", url)+'.pdf'
         # Researchgate
         elif re.search("researchgate.net/publication", url):
             response = requests.get(url, verify=False, headers={"User-Agent": "XY"})

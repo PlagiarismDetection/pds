@@ -164,11 +164,11 @@ class CROnline():
 
         if cls.lang == 'en':
             url = 'https://www.bing.com/search?q=' + query + \
-                "+arxiv.org+researchgate.net&go=Search&qs=ds&form=QBRE"
+                "+arxiv.org&go=Search&qs=ds&form=QBRE"
         elif cls.lang == 'vi':
             get_header['Accept-Language'] = 'vi-VN'
             url = 'https://www.bing.com/search?q=' + query + \
-                "+researchgate.net&go=Search&qs=ds&form=QBRE"
+                "&go=Search&qs=ds&form=QBRE"
         else:
             raise Exception(
                 'SearchBing not suppported for language: ' + cls.lang)
