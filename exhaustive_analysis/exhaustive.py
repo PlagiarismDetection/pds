@@ -7,9 +7,31 @@ from abc import ABC
 from pds.pre_processing.utils import split_para
 import time
 
-
+# importing libraries
+import os
+import psutil
+ 
 DEBUG = True
 
+# inner psutil function
+def process_memory():
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss
+ 
+# decorator function
+def profile(func):
+    def wrapper(*args, **kwargs):
+ 
+        mem_before = process_memory()
+        result = func(*args, **kwargs)
+        mem_after = process_memory()
+        print("{}:consumed memory: {} {} {}".format(
+            func.__name__,
+            mem_before, mem_after, mem_after - mem_before))
+ 
+        return result
+    return wrapper
 
 def log(message, param=None):
     if DEBUG:
@@ -62,6 +84,7 @@ class Exhaustive(ABC):
             return (sm_score, 'paraphrase')
         return (sm_score, None)
 
+    @profile
     def offline_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.7, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         input_handled = []
@@ -144,6 +167,7 @@ class Exhaustive(ABC):
             'input_handled': input_handled
         }
 
+    @profile
     def online_exhaustive_analysis(self, candidate_retrieval_result, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         input_handled = []
@@ -225,7 +249,7 @@ class Exhaustive(ABC):
             for paraphrased_evidence in evidence_list:
                 # Compare only strings has more than 2 words
                 for evidence in paraphrased_evidence['evidence']:
-                    if evidence['sm_score'] > 0.6:
+                    if evidence['sm_score'] > 0.55:
                         sm = self.__string_based(
                             paraphrased_evidence['sent'], evidence['sent_source'], exact_threshold, near_threshold, similarity_metric)
                         if sm:
@@ -253,6 +277,7 @@ class Exhaustive(ABC):
             'input_handled': input_handled
         }
 
+    @profile
     def text_compare_analysis(self, input_content, source_content, is_inputPDF, is_sourcePDF, exact_threshold=0.95, near_threshold=0.85, paraphrase_threshold=0.8, similarity_metric=SimilarityMetric.Jaccard_2()):
         evidences = []
         # Step 1: Input split docs to paragraph
