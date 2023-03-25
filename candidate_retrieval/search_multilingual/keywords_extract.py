@@ -44,4 +44,6 @@ class KeyWordsExtract():
 # cluster2 = []
 
 # print(x1.extractClusterKeyWords(cluster1))
+# ['mangrove forests edge', 'birds mammals reptiles', 'florida home threatened', 'breeding grounds myriad', 'making ideal nurseries', 'mangrove foresove reforestation', 'poaching elephant rhino', 'period according kenya', 'resulting criminal activity', 'locals places gazi']
 # print(x1.extractClusterKeyWords(cluster2))
+# []
