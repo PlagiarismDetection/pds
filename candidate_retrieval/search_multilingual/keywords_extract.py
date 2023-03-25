@@ -14,11 +14,15 @@ class KeyWordsExtract():
 
     def extractKeyWords(self, document):
         # keyphrase_ngram_range: the number of result keywords e.g. 3 means each keyword should has length of 3
-        # use_mmr (Maximal Marginal Relevance) which based on cosine similarity, high diversity
-        probabilityKeyWords = self.kw_model.extract_keywords(document, keyphrase_ngram_range=(3, 3), use_mmr=True, diversity=0.7)
+        # use_mmr (Maximal Marginal Relevance) which based on cosine similarity, low diversity
+        probabilityKeywords = self.kw_model.extract_keywords(document, keyphrase_ngram_range=(3, 3), use_mmr=True, diversity=0.2)
 
-        # ATM, I will ignore the percentage score of each keyword
-        return map(lambda probabilityKeyWord: probabilityKeyWord[0], probabilityKeyWords)
+        # ATM, I will filter out the keywords whose score is less than 0.6
+        highProbabilityKeywords = self.filterKeyWords(probabilityKeywords, 0.6)
+        return map(lambda probabilityKeyWord: probabilityKeyWord[0], highProbabilityKeywords)
+
+    def filterKeyWords(self, probabilityKeyWords, score):
+        return list(filter(lambda probabilityKeyWord: probabilityKeyWord[1] > score, probabilityKeyWords))
 
     def extractClusterKeyWords(self, cluster):
         # keywords = cluster.map(lambda paragraph: self.extractKeyWords(paragraph))
@@ -29,6 +33,7 @@ class KeyWordsExtract():
 
         # prevent duplicated elemennts
         return list(set(keywords))
+
 
 
 
